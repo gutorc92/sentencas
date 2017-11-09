@@ -1,0 +1,2 @@
+# sentencas
+Parao o tcc
