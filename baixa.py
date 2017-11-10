@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
 import os
 import logging
 import time
+import platform
+import codecs
 from datetime import datetime
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
@@ -12,7 +15,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 def save_setenca(processo, text):
-    with open(os.path.join("textos",processo), "a") as handle:
+    with codecs.open(os.path.join("textos",processo), "a", "utf-8") as handle:
         handle.write(text)
 
 def download_processo(driver, linha, dados):
@@ -31,7 +34,9 @@ def download_processo(driver, linha, dados):
     except:
         logging.debug("Cannot wait for frame")
     try:
-        num_pages = int(driver.find_element_by_id("numPages").text.replace("de ", ""))
+        num_pages = driver.find_element_by_id("numPages").text.replace("de ", "")
+        num_pages = num_pages.replace("of ", "")
+        num_pages = int(num_pages)
         print(num_pages)
         page_container = driver.find_element_by_id("pageContainer%d" % num_pages)
         page_container.location_once_scrolled_into_view()
@@ -41,7 +46,7 @@ def download_processo(driver, linha, dados):
     try:
         #actions = ActionChains(driver)
         #actions.move_to_element(page_container).perform()
-        dados.write(lista_proc[0], + "," + str(num_pages) + "\n")
+        dados.write(lista_proc[0] + "," + str(num_pages) + "\n")
         if num_pages > 1:
             logging.info("file name: %s url: %s" % (file_name, url))
         elements = driver.find_elements_by_class_name("textLayer")
@@ -80,7 +85,13 @@ def create_driver():
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--start-maximized");
     chrome_options.add_argument("useAutomationExtension=false")
-    driver = webdriver.Chrome('chromedriver.exe', chrome_options=chrome_options)
+    if platform.system() == "Linux":
+        chromedriver = "chromedriver"
+    else:
+        chromedriver = "chromedriver.exe"
+    
+    chromedriver = os.path.join(os.path.dirname(os.path.realpath(__file__)), chromedriver)
+    driver = webdriver.Chrome(chromedriver, chrome_options=chrome_options)
     return driver
 
 
