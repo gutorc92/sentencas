@@ -41,7 +41,7 @@ def download_processo(driver, linha, dados):
         page_container = driver.find_element_by_id("pageContainer%d" % num_pages)
         page_container.location_once_scrolled_into_view()
     except WebDriverException:
-        logging.debug("cannto scroll: %s url: %s" % (file_name, url))
+        logging.info("cannto scroll: %s url: %s" % (file_name, url))
     time.sleep(1)
     try:
         #actions = ActionChains(driver)
