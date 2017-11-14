@@ -7,7 +7,8 @@ from concurrent.futures import Future
 from bs4 import BeautifulSoup
 from settings import Settings
 import threading
-
+import win32com.client as win32
+import zipfile
 
 class Extract_Numbers:
 
@@ -15,13 +16,15 @@ class Extract_Numbers:
         self.arquivo = None
         self.s = Settings()
         self.s.extract_settings()
-        log_file = "log_extract_numbers_" + str(id) + "_" + datetime.now().strftime("%d%m%Y_%M_%H")
-        log_file = os.path.join(self.s.path, "log", log_file)
-        logging.basicConfig(filename=log_file, format='%(levelname)s:%(message)s', level=logging.INFO)
+        self.log_file = "log_extract_numbers_" + str(id) + "_" + datetime.now().strftime("%d%m%Y_%M_%H")
+        self.log_file = os.path.join(self.s.path, "log", self.log_file)
+        #print(self.log_file)
+        logging.basicConfig(filename=self.log_file, format='%(levelname)s:%(message)s', level=logging.INFO)
         self.id = id
         self.pagInit = 1 if pagInit == 0 else pagInit
         self.pagEnd = pagEnd
         self.num = num
+        self.arquivos = []
 
     def extrai_numero_processo(self, id, response):
         page = BeautifulSoup(response.content, "html.parser")
@@ -42,9 +45,9 @@ class Extract_Numbers:
         if self.num + len(names) < 10000 and self.arquivo is not None:
             arquivo = self.arquivo 
         else:
-            start = datetime.now()
-            arquivo = "resultado_" + str(id) + "_" + start.strftime("%d%m%Y_%M_%H") + ".txt"
+            arquivo = "resultado_" + str(id) + "_" + datetime.now().strftime("%d%m%Y_%M_%H") + ".txt"
             self.arquivo = arquivo
+            self.arquivos.append(self.arquivo)
             self.num = 0
         
         with open(os.path.join(self.s.path, "numero_processos", arquivo), "a") as f:
@@ -81,11 +84,11 @@ class Extract_Numbers:
         self.t1.join()
 
 if __name__ == "__main__":
-     range_n = 1000
+     range_n = 10
      x = list(range(0, 11))
      pagin = [t * range_n for t in x]
      pagout = [t - 1 for t in pagin[1:]]
-     pagout.append(11 *range_n)
+     pagout.append(pagin[-1] + range_n)
      list_ex = []
      for id, pagi, pago in zip(x, pagin, pagout):
          print(id, pagi, pago)
@@ -101,3 +104,22 @@ if __name__ == "__main__":
          p.join()
      end = datetime.now()
      print("Took {}s to run download with Threads".format((end - start).total_seconds()))
+
+
+     outlook = win32.Dispatch('outlook.application')
+     mail = outlook.CreateItem(0)
+     mail.To = 'gutorc@hotmail.com'
+     mail.Subject = 'Dados coletados do Tj SP'
+     mail.Body = 'Os dados coletados seguem em anexo'
+
+     zipf = zipfile.ZipFile("C:\\Users\\b15599226\\Documents\\dados.zip", 'w', zipfile.ZIP_DEFLATED)
+     for p in list_ex:
+         for files_path in p.arquivos:
+             if os.path.exists(os.path.join(p.s.path, "numero_processos", files_path)):
+                 zipf.write(os.path.join(p.s.path, "numero_processos", files_path))
+         if os.path.exists(p.log_file):
+             zipf.write(p.log_file)
+
+     zipf.close()
+     mail.Attachments.Add("C:\\Users\\b15599226\\Documents\\dados.zip")
+     mail.Send()
