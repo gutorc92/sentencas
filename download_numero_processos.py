@@ -3,8 +3,10 @@ import logging
 import os
 from datetime import datetime
 from concurrent.futures import *
+from concurrent.futures import Future
 from bs4 import BeautifulSoup
 from settings import Settings
+import threading
 
 
 class Extract_Numbers:
@@ -13,7 +15,7 @@ class Extract_Numbers:
         self.arquivo = None
         self.s = Settings()
         self.s.extract_settings()
-        log_file = "log_extract_numbers" + str(id)  + datetime.now().strftime("%d%m%Y_%M_%H")
+        log_file = "log_extract_numbers_" + str(id) + "_" + datetime.now().strftime("%d%m%Y_%M_%H")
         log_file = os.path.join(self.s.path, "log", log_file)
         logging.basicConfig(filename=log_file, format='%(levelname)s:%(message)s', level=logging.INFO)
         self.id = id
@@ -41,7 +43,7 @@ class Extract_Numbers:
             arquivo = self.arquivo 
         else:
             start = datetime.now()
-            arquivo = "resultado_" + str(id) + start.strftime("%d%m%Y_%M_%H") + ".txt"
+            arquivo = "resultado_" + str(id) + "_" + start.strftime("%d%m%Y_%M_%H") + ".txt"
             self.arquivo = arquivo
             self.num = 0
         
@@ -62,6 +64,7 @@ class Extract_Numbers:
         self.extrai_numero_processo(self.id, response)
         for i in range(self.pagInit, self.pagEnd):
             url_t = "http://esaj.tjsp.jus.br/cjpg/trocarDePagina.do?pagina=" + str(i) + "&conversationId="
+            #print(i)
             response = session.get(url_t)
             if response.status_code == req.codes.ok:
                 self.extrai_numero_processo(self.id, response)
@@ -70,23 +73,31 @@ class Extract_Numbers:
         end = datetime.now()
         print("Took {}s to rund thread {}".format((end - start).total_seconds(), self.id))
 
+    def run(self):
+        self.t1 = threading.Thread(target=self.download)
+        self.t1.start()
 
+    def join(self):
+        self.t1.join()
 
 if __name__ == "__main__":
-    # range_n = 10
-    # x = list(range(0, 11))
-    # pagin = [t * range_n for t in x]
-    # pagout = [t - 1 for t in pagin[1:]]
-    # pagout.append(11 *range_n)
-    # list_ex = []
-    # for id, pagi, pago in zip(x, pagin, pagout):
-    #     print(id, pagi, pago)
-    #     ex = Extract_Numbers(id, pagi, pago)
-    #     list_ex.append(ex)
-    #
-    #
-    # start = datetime.now()
-    # pool = ThreadPoolExecutor(max_workers=10)
-    # results = list(pool.map(list_ex[0].download))
-    # end = datetime.now()
-    # print("Took {}s to increase the prices with python Threads".format((end - start).total_seconds()))
+     range_n = 1000
+     x = list(range(0, 11))
+     pagin = [t * range_n for t in x]
+     pagout = [t - 1 for t in pagin[1:]]
+     pagout.append(11 *range_n)
+     list_ex = []
+     for id, pagi, pago in zip(x, pagin, pagout):
+         print(id, pagi, pago)
+         ex = Extract_Numbers(id, pagi, pago)
+         list_ex.append(ex)
+
+
+     start = datetime.now()
+     for p in list_ex:
+         p.run()
+
+     for p in list_ex:
+         p.join()
+     end = datetime.now()
+     print("Took {}s to run download with Threads".format((end - start).total_seconds()))
