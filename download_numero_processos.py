@@ -2,17 +2,14 @@ import requests as req
 import logging
 import os
 from datetime import datetime
-from concurrent.futures import *
-from concurrent.futures import Future
 from bs4 import BeautifulSoup
 from settings import Settings
 import threading
-import win32com.client as win32
-import zipfile
+from downloadsentences import DownloadSetence
 
 class Extract_Numbers:
 
-    def __init__(self, id, pagInit, pagEnd, num = 0):
+    def __init__(self, id, pagInit, pagEnd, driver, num = 0):
         self.arquivo = None
         self.s = Settings()
         self.s.extract_settings()
@@ -25,6 +22,7 @@ class Extract_Numbers:
         self.pagEnd = pagEnd
         self.num = num
         self.arquivos = []
+        self.driver = driver
 
     def extrai_numero_processo(self, id, response):
         page = BeautifulSoup(response.content, "html.parser")
@@ -82,44 +80,6 @@ class Extract_Numbers:
 
     def join(self):
         self.t1.join()
+        d = DownloadSetence(self.driver, self.arquivos)
+        d.download()
 
-if __name__ == "__main__":
-     range_n = 10
-     x = list(range(0, 11))
-     pagin = [t * range_n for t in x]
-     pagout = [t - 1 for t in pagin[1:]]
-     pagout.append(pagin[-1] + range_n)
-     list_ex = []
-     for id, pagi, pago in zip(x, pagin, pagout):
-         print(id, pagi, pago)
-         ex = Extract_Numbers(id, pagi, pago)
-         list_ex.append(ex)
-
-
-     start = datetime.now()
-     for p in list_ex:
-         p.run()
-
-     for p in list_ex:
-         p.join()
-     end = datetime.now()
-     print("Took {}s to run download with Threads".format((end - start).total_seconds()))
-
-
-     outlook = win32.Dispatch('outlook.application')
-     mail = outlook.CreateItem(0)
-     mail.To = 'gutorc@hotmail.com'
-     mail.Subject = 'Dados coletados do Tj SP'
-     mail.Body = 'Os dados coletados seguem em anexo'
-
-     zipf = zipfile.ZipFile("C:\\Users\\b15599226\\Documents\\dados.zip", 'w', zipfile.ZIP_DEFLATED)
-     for p in list_ex:
-         for files_path in p.arquivos:
-             if os.path.exists(os.path.join(p.s.path, "numero_processos", files_path)):
-                 zipf.write(os.path.join(p.s.path, "numero_processos", files_path))
-         if os.path.exists(p.log_file):
-             zipf.write(p.log_file)
-
-     zipf.close()
-     mail.Attachments.Add("C:\\Users\\b15599226\\Documents\\dados.zip")
-     mail.Send()

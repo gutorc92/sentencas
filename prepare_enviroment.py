@@ -1,10 +1,49 @@
 # -*- coding: utf-8 -*-
 import os
-from settings import Settings
-from downloadsentences import DownloadSetence
 import platform
 import urllib.request
 import zipfile
+from settings import Settings
+from downloadsentences import DownloadSetence
+from download_numero_processos import Extract_Numbers
+from selenium.webdriver.chrome.options import Options
+from datetime import datetime
+from selenium import webdriver
+import win32com.client as win32
+
+
+def create_driver(self):
+    chrome_options = Options()
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--start-maximized");
+    chrome_options.add_argument("useAutomationExtension=false")
+    if platform.system() == "Linux":
+        chromedriver = "chromedriver"
+    else:
+        chromedriver = "chromedriver.exe"
+
+    chromedriver = os.path.join(os.path.dirname(os.path.realpath(__file__)), chromedriver)
+    driver = webdriver.Chrome(chromedriver, chrome_options=chrome_options)
+    return driver
+
+def send_email(list_ex):
+    outlook = win32.Dispatch('outlook.application')
+    mail = outlook.CreateItem(0)
+    mail.To = 'gutorc@hotmail.com'
+    mail.Subject = 'Dados coletados do Tj SP'
+    mail.Body = 'Os dados coletados seguem em anexo'
+
+    zipf = zipfile.ZipFile("C:\\Users\\b15599226\\Documents\\dados.zip", 'w', zipfile.ZIP_DEFLATED)
+    for p in list_ex:
+        for files_path in p.arquivos:
+            if os.path.exists(os.path.join(p.s.path, "numero_processos", files_path)):
+                zipf.write(os.path.join(p.s.path, "numero_processos", files_path))
+        if os.path.exists(p.log_file):
+            zipf.write(p.log_file)
+
+    zipf.close()
+    mail.Attachments.Add("C:\\Users\\b15599226\\Documents\\dados.zip")
+    mail.Send()
 
 def create_directory():
     s = Settings()
@@ -40,6 +79,30 @@ def download_chrome_driver():
 if __name__ == "__main__":
     create_directory()
     download_chrome_driver()
-    d = DownloadSetence()
-    d.download_pdf_sentencas()
+    driver = create_driver()
+    ex = Extract_Numbers(15, 500000, 500001, driver)
+    ex.run()
+    ex.join()
+    # range_n = 10
+    # x = list(range(0, 11))
+    # pagin = [t * range_n for t in x]
+    # pagout = [t - 1 for t in pagin[1:]]
+    # pagout.append(pagin[-1] + range_n)
+    # list_ex = []
+    # for id, pagi, pago in zip(x, pagin, pagout):
+    #     print(id, pagi, pago)
+    #     ex = Extract_Numbers(id, pagi, pago, driver)
+    #     list_ex.append(ex)
+    #
+    # start = datetime.now()
+    # for p in list_ex:
+    #     p.run()
+    #
+    # for p in list_ex:
+    #     p.join()
+    # end = datetime.now()
+    # print("Took {}s to run download with Threads".format((end - start).total_seconds()))
+    # send_email(list_ex)
+
+
 

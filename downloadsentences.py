@@ -14,9 +14,14 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class DownloadSetence(object):
 
-    def __init__(self):
+    def __init__(self, webDriver, processNumbers):
         self.s = Settings()
         self.s.extract_settings()
+        self.driver = webDriver
+        self.create_log_file()
+        self.processNumbers = processNumbers
+
+    def create_log_file(self):
         log_file = "log" + datetime.now().strftime("%d%m%Y_%M_%H")
         self.log_file = os.path.join(self.s.path, "log", log_file)
         logging.basicConfig(filename=self.log_file, format='%(levelname)s:%(message)s', level=logging.INFO)
@@ -36,8 +41,8 @@ class DownloadSetence(object):
     def complete_file_name(self, processo):
         return self.get_file_path("textos",".".join([self.file_name(processo), "txt"]))
 
-    def save_setenca(self, processo, text):
-        with codecs.open(self.complete_file_name(processo), "a", "utf-8") as handle:
+    def save_setence(self, processo, text):
+        with codecs.open(self.complete_file_name(processo), "w", "utf-8") as handle:
             handle.write(text)
 
     def extract_num_pages(self, element):
@@ -65,10 +70,12 @@ class DownloadSetence(object):
         try:
             dados.write(self.file_name(linha) + "," + str(num_pages) + "\n")
             elements = driver.find_elements_by_class_name("textLayer")
+            text = ""
             for element in elements:
                 if len(element.text) == 0:
                     logging.info("element without characters for file: %s" % self.file_name(linha))
-                self.save_setenca(linha, element.text)
+                    text += element.text
+            self.save_setence(linha, text)
         except NoSuchElementException:
             logging.info("Text layer nao encontrada para a url: %s", str(url))
 
@@ -91,10 +98,19 @@ class DownloadSetence(object):
             path_all = os.path.join(path_all, p)
         return path_all
 
-    def read_todos_processos(self):
+    def read_all_processes(self):
         arquivos_numero_processos = os.listdir(self.get_file_path("numero_processos"))
         processos = set()
         for file_path in arquivos_numero_processos:
+            with open(self.get_file_path("numero_processos", file_path),"r") as handle:
+                for line in handle.readlines():
+                    processos.add(line.replace("\n",""))
+
+        return processos
+
+    def read_process(self):
+        processos = set()
+        for file_path in self.processNumbers:
             with open(self.get_file_path("numero_processos", file_path),"r") as handle:
                 for line in handle.readlines():
                     processos.add(line.replace("\n",""))
@@ -114,35 +130,18 @@ class DownloadSetence(object):
 
     def download_pdf_sentencas(self):
         dados = None
-        driver = self.create_driver()
         try:
-            processos_to_read = self.read_todos_processos()
-            processos_readed = self.read_setencas_csv()
+            process = self.read_process() if self.processNumbers is not None else  self.read_all_processes()
             dados = open(self.get_file_path("estatistica", "setencas.csv"), "w")
-            processos = processos_to_read - processos_readed
-            print(processos)
-            for line in processos:
-                self.download_processo(driver, line, dados)
+            for line in process:
+                self.download_processo(self.driver, line, dados)
         except Exception as e:
             logging.exception("Main loop brokes with exception")
         finally:
-            driver.quit()
             dados.close()
 
 
-    def create_driver(self):
-        chrome_options = Options()
-        chrome_options.add_argument("--disable-extensions")
-        chrome_options.add_argument("--start-maximized");
-        chrome_options.add_argument("useAutomationExtension=false")
-        if platform.system() == "Linux":
-            chromedriver = "chromedriver"
-        else:
-            chromedriver = "chromedriver.exe"
 
-        chromedriver = os.path.join(os.path.dirname(os.path.realpath(__file__)), chromedriver)
-        driver = webdriver.Chrome(chromedriver, chrome_options=chrome_options)
-        return driver
 
 
 
