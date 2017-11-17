@@ -12,7 +12,7 @@ from selenium import webdriver
 import win32com.client as win32
 
 
-def create_driver(self):
+def create_driver():
     chrome_options = Options()
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--start-maximized");
@@ -79,30 +79,35 @@ def download_chrome_driver():
 if __name__ == "__main__":
     create_directory()
     download_chrome_driver()
-    driver = create_driver()
-    ex = Extract_Numbers(15, 500000, 500001, driver)
-    ex.run()
-    ex.join()
-    # range_n = 10
-    # x = list(range(0, 11))
-    # pagin = [t * range_n for t in x]
-    # pagout = [t - 1 for t in pagin[1:]]
-    # pagout.append(pagin[-1] + range_n)
-    # list_ex = []
-    # for id, pagi, pago in zip(x, pagin, pagout):
-    #     print(id, pagi, pago)
-    #     ex = Extract_Numbers(id, pagi, pago, driver)
-    #     list_ex.append(ex)
-    #
-    # start = datetime.now()
-    # for p in list_ex:
-    #     p.run()
-    #
-    # for p in list_ex:
-    #     p.join()
-    # end = datetime.now()
-    # print("Took {}s to run download with Threads".format((end - start).total_seconds()))
-    # send_email(list_ex)
+    try:
+        driver = create_driver()
+        ex = Extract_Numbers(15, 2, 4, driver)
+        ex.run()
+        ex.join()
+        range_n = 100
+        x = list(range(0, 1000))
+        pagin = [t * range_n for t in x]
+        pagout = [t - 1 for t in pagin[1:]]
+        pagout.append(pagin[-1] + range_n)
+        list_ex = []
+        for id, pagi, pago in zip(x, pagin, pagout):
+             print(id, pagi, pago)
+             ex = Extract_Numbers(id, pagi, pago, driver)
+             list_ex.append(ex)
+
+        start = datetime.now()
+        for p in list_ex:
+             p.run()
+
+        for p in list_ex:
+             p.join()
+        end = datetime.now()
+        print("Took {}s to run download with Threads".format((end - start).total_seconds()))
+        send_email(list_ex)
+    except:
+        print("fodeu")
+    finally:
+        driver.close()
 
 
 

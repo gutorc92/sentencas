@@ -13,16 +13,18 @@ class Extract_Numbers:
         self.arquivo = None
         self.s = Settings()
         self.s.extract_settings()
-        self.log_file = "log_extract_numbers_" + str(id) + "_" + datetime.now().strftime("%d%m%Y_%M_%H")
-        self.log_file = os.path.join(self.s.path, "log", self.log_file)
-        #print(self.log_file)
-        logging.basicConfig(filename=self.log_file, format='%(levelname)s:%(message)s', level=logging.INFO)
+        self.create_log_(id)
         self.id = id
         self.pagInit = 1 if pagInit == 0 else pagInit
         self.pagEnd = pagEnd
         self.num = num
         self.arquivos = []
         self.driver = driver
+
+    def create_log_(self, id):
+        self.log_file = "log_extract_numbers_" + str(id) + "_" + datetime.now().strftime("%d%m%Y_%M_%H")
+        self.log_file = os.path.join(self.s.path, "log", self.log_file)
+        logging.basicConfig(filename=self.log_file, format='%(levelname)s:%(message)s', level=logging.INFO)
 
     def extrai_numero_processo(self, id, response):
         page = BeautifulSoup(response.content, "html.parser")
@@ -80,6 +82,8 @@ class Extract_Numbers:
 
     def join(self):
         self.t1.join()
+        print(self.arquivos)
         d = DownloadSetence(self.driver, self.arquivos)
-        d.download()
+        print("Vai executar o download de arqvuivos")
+        d.download_pdf_sentencas()
 

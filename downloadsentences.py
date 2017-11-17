@@ -22,9 +22,15 @@ class DownloadSetence(object):
         self.processNumbers = processNumbers
 
     def create_log_file(self):
-        log_file = "log" + datetime.now().strftime("%d%m%Y_%M_%H")
+        log_file = "log_" + datetime.now().strftime("%d%m%Y_%M_%H")
         self.log_file = os.path.join(self.s.path, "log", log_file)
         logging.basicConfig(filename=self.log_file, format='%(levelname)s:%(message)s', level=logging.INFO)
+
+    def create_estatisca_file(self):
+        estatistica_file = "sentences" + datetime.now().strftime("%d%m%Y_%M_%H")
+        estatistica_file = os.path.join(self.s.path, "estatistica", estatistica_file)
+        estatistica_file = ".".join([estatistica_file, "csv"])
+        return estatistica_file
 
     def create_url(self, processo):
         lista_proc = processo.split("-")
@@ -74,7 +80,7 @@ class DownloadSetence(object):
             for element in elements:
                 if len(element.text) == 0:
                     logging.info("element without characters for file: %s" % self.file_name(linha))
-                    text += element.text
+                text += element.text + "\n"
             self.save_setence(linha, text)
         except NoSuchElementException:
             logging.info("Text layer nao encontrada para a url: %s", str(url))
@@ -132,7 +138,8 @@ class DownloadSetence(object):
         dados = None
         try:
             process = self.read_process() if self.processNumbers is not None else  self.read_all_processes()
-            dados = open(self.get_file_path("estatistica", "setencas.csv"), "w")
+            print(process)
+            dados = open(self.create_estatisca_file(), "w")
             for line in process:
                 self.download_processo(self.driver, line, dados)
         except Exception as e:
