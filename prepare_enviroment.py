@@ -10,6 +10,7 @@ from selenium.webdriver.chrome.options import Options
 from datetime import datetime
 from selenium import webdriver
 import win32com.client as win32
+from traceback import print_exc
 
 
 def create_driver():
@@ -76,16 +77,16 @@ def download_chrome_driver():
         os.remove(chromedriver_zip)
 
 
-if __name__ == "__main__":
+def createThreads(init, end, range_n):
     create_directory()
     download_chrome_driver()
     try:
+        start = datetime.now()
         driver = create_driver()
-        ex = Extract_Numbers(15, 2, 4, driver)
-        ex.run()
-        ex.join()
-        range_n = 100
-        x = list(range(0, 1000))
+        # ex = Extract_Numbers(21, 1, 1000000, driver)
+        # ex.run()
+        # ex.join()
+        x = list(range(init, end))
         pagin = [t * range_n for t in x]
         pagout = [t - 1 for t in pagin[1:]]
         pagout.append(pagin[-1] + range_n)
@@ -95,7 +96,7 @@ if __name__ == "__main__":
              ex = Extract_Numbers(id, pagi, pago, driver)
              list_ex.append(ex)
 
-        start = datetime.now()
+        #start = datetime.now()
         for p in list_ex:
              p.run()
 
@@ -103,11 +104,17 @@ if __name__ == "__main__":
              p.join()
         end = datetime.now()
         print("Took {}s to run download with Threads".format((end - start).total_seconds()))
-        send_email(list_ex)
+        send_email([ex])
     except:
         print("fodeu")
+        print_exc()
     finally:
         driver.close()
 
 
 
+if __name__ == "__main__":
+    range_n = 30
+    createThreads(0,20, 30)
+    createThreads(21, 40, 30)
+    createThreads(60, 80, 30)
