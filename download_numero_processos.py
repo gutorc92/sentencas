@@ -21,11 +21,11 @@ class Extract_Numbers:
         self.arquivos = []
         self.driver = driver
 
-    
+
     def create_log_(self, id):
         name = "log_extract_numbers_" + str(id)
-        log_file = "log_extract_numbers_" + str(id) + "_" + datetime.now().strftime("%d%m%Y_%M_%H")
-        self.logger = self.s.createLogFile(name, log_file)
+        self.log_file = "log_extract_numbers_" + str(id) + "_" + datetime.now().strftime("%d%m%Y_%M_%H")
+        self.logger = self.s.createLogFile(name, self.log_file)
 
     def extrai_numero_processo(self, id, response):
         page = BeautifulSoup(response.content, "html.parser")

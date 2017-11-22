@@ -39,8 +39,8 @@ def send_email(list_ex):
         for files_path in p.arquivos:
             if os.path.exists(os.path.join(p.s.path, "numero_processos", files_path)):
                 zipf.write(os.path.join(p.s.path, "numero_processos", files_path))
-        if os.path.exists(p.log_file):
-            zipf.write(p.log_file)
+        if os.path.exists(os.path.join(p.s.path, "numero_processos",p.log_file)):
+            zipf.write(os.path.join(p.s.path, "numero_processos",p.log_file))
 
     zipf.close()
     mail.Attachments.Add("C:\\Users\\b15599226\\Documents\\dados.zip")
@@ -80,9 +80,9 @@ def download_chrome_driver():
 def createThreads(init, end, range_n):
     create_directory()
     download_chrome_driver()
+    driver = create_driver()
     try:
         start = datetime.now()
-        driver = create_driver()
         # ex = Extract_Numbers(21, 1, 1000000, driver)
         # ex.run()
         # ex.join()
@@ -104,7 +104,7 @@ def createThreads(init, end, range_n):
              p.join()
         end = datetime.now()
         print("Took {}s to run download with Threads".format((end - start).total_seconds()))
-        send_email([ex])
+        send_email(list_ex)
     except:
         print("fodeu")
         print_exc()
@@ -115,6 +115,10 @@ def createThreads(init, end, range_n):
 
 if __name__ == "__main__":
     range_n = 30
-    createThreads(0,20, 30)
-    createThreads(21, 40, 30)
+    #createThreads(0,20, 30)
+    #createThreads(21, 40, 30)
     createThreads(60, 80, 30)
+    createThreads(81, 100, 30)
+    createThreads(101, 120, 30)
+    createThreads(121, 140, 30)
+    createThreads(141, 160, 30)
