@@ -9,23 +9,31 @@ from download_numero_processos import Extract_Numbers
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
 from selenium import webdriver
-import win32com.client as win32
+if platform.system() == "Windows":
+    import win32com.client as win32
 from traceback import print_exc
 
 
-def create_driver():
-    chrome_options = Options()
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--start-maximized");
-    chrome_options.add_argument("useAutomationExtension=false")
+def os_path(file_win, file_linux):
+    setencas_dir = os.path.dirname(os.path.realpath(__file__))
     if platform.system() == "Linux":
-        chromedriver = "chromedriver"
+        path_file = os.path.join(setencas_dir, file_linux)
     else:
-        chromedriver = "chromedriver.exe"
+        path_file = os.path.join(setencas_dir, file_win)
+    return path_file
 
-    chromedriver = os.path.join(os.path.dirname(os.path.realpath(__file__)), chromedriver)
-    driver = webdriver.Chrome(chromedriver, chrome_options=chrome_options)
-    return driver
+def create_driver():
+    path_phantom = os.path("phantomjs.exe", "phantomjs")
+    if os.path.exists(path_phantom):
+        return webdriver.PhantomJS()
+
+    path_chromedriver = os_path("chromedriver.exe", "chromedriver" )
+    if os.path.exists(path_chromedriver):
+        chrome_options = Options()
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--start-maximized");
+        chrome_options.add_argument("useAutomationExtension=false")
+        return webdriver.Chrome(path_chromedriver, chrome_options=chrome_options)
 
 def send_email(list_ex):
     outlook = win32.Dispatch('outlook.application')
@@ -63,6 +71,7 @@ def create_directory():
 def download_chrome_driver():
     setencas_dir = os.path.dirname(os.path.realpath(__file__))
     if platform.system() == "Linux":
+        link_download = "https://chromedriver.storage.googleapis.com/2.33/chromedriver_linux64.zip"
         chromedriver_file = os.path.join(setencas_dir, "chromedriver")
     else:
         chromedriver_file = os.path.join(setencas_dir, "chromedriver.exe")
@@ -76,10 +85,24 @@ def download_chrome_driver():
         zip_ref.close()
         os.remove(chromedriver_zip)
 
+def download_phantomjs():
+    setencas_dir = os.path.dirname(os.path.realpath(__file__))
+    if platform.system() == "Linux":
+        link_download = "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2"
+        path_file = os.path.join(setencas_dir, "phantomjs")
+    else:
+        path_file = os.path.join(setencas_dir, "phantomjs.exe")
+        link_download = "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-windows.zip"
+
+    if not os.path.exists(path_file):
+        phantomjs_zip = os.path.join(setencas_dir, "phantomjs.zip")
+        urllib.request.urlretrieve(link_download, phantomjs_zip)
+        zip_ref = zipfile.ZipFile(phantomjs_zip, 'r')
+        zip_ref.extractall(setencas_dir)
+        zip_ref.close()
+        os.remove(phantomjs_zip)
 
 def createThreads(init, end, range_n):
-    create_directory()
-    download_chrome_driver()
     driver = create_driver()
     try:
         start = datetime.now()
@@ -104,7 +127,8 @@ def createThreads(init, end, range_n):
              p.join()
         end = datetime.now()
         print("Took {}s to run download with Threads".format((end - start).total_seconds()))
-        send_email(list_ex)
+        if platform.system() == "Windows":
+            send_email(list_ex)
     except:
         print("fodeu")
         print_exc()
@@ -115,10 +139,16 @@ def createThreads(init, end, range_n):
 
 if __name__ == "__main__":
     range_n = 30
+    create_directory()
+    download_chrome_driver()
+    download_phantomjs()
     #createThreads(0,20, 30)
     #createThreads(21, 40, 30)
-    createThreads(60, 80, 30)
+    #createThreads(60, 80, 30)
     createThreads(81, 100, 30)
     createThreads(101, 120, 30)
     createThreads(121, 140, 30)
     createThreads(141, 160, 30)
+    for x in range(0,150000, 20):
+        #createThreads(x, x +19, range_n)
+        print(x, x+19, range_n)
