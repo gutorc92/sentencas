@@ -6,6 +6,9 @@ from bs4 import BeautifulSoup
 from settings import Settings
 import threading
 from downloadsentences import DownloadSetence
+import platform
+from selenium.webdriver.chrome.options import Options
+from selenium import webdriver
 
 class Extract_Numbers:
 
@@ -85,7 +88,27 @@ class Extract_Numbers:
     def join(self):
         self.t1.join()
         print(self.arquivos)
-        d = DownloadSetence(self.driver, self.arquivos)
+        d = DownloadSetence(self.create_driver(), self.arquivos)
         print("Vai executar o download de arqvuivos")
         d.download_pdf_sentencas()
 
+    def os_path(self, file_win, file_linux):
+        setencas_dir = os.path.dirname(os.path.realpath(__file__))
+        if platform.system() == "Linux":
+            path_file = os.path.join(setencas_dir, file_linux)
+        else:
+            path_file = os.path.join(setencas_dir, file_win)
+        return path_file
+
+    def create_driver(self):
+        path_phantom = self.os_path("phantomjs.exe", "phantomjs")
+        if os.path.exists(path_phantom):
+            return webdriver.PhantomJS()
+
+        path_chromedriver = os_path("chromedriver.exe", "chromedriver")
+        if os.path.exists(path_chromedriver):
+            chrome_options = Options()
+            chrome_options.add_argument("--disable-extensions")
+            chrome_options.add_argument("--start-maximized");
+            chrome_options.add_argument("useAutomationExtension=false")
+            return webdriver.Chrome(path_chromedriver, chrome_options=chrome_options)

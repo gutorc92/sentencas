@@ -23,7 +23,7 @@ def os_path(file_win, file_linux):
     return path_file
 
 def create_driver():
-    path_phantom = os.path("phantomjs.exe", "phantomjs")
+    path_phantom = os_path("phantomjs.exe", "phantomjs")
     if os.path.exists(path_phantom):
         return webdriver.PhantomJS()
 
@@ -103,7 +103,7 @@ def download_phantomjs():
         os.remove(phantomjs_zip)
 
 def createThreads(init, end, range_n):
-    driver = create_driver()
+    driver = None
     try:
         start = datetime.now()
         # ex = Extract_Numbers(21, 1, 1000000, driver)
@@ -132,8 +132,8 @@ def createThreads(init, end, range_n):
     except:
         print("fodeu")
         print_exc()
-    finally:
-        driver.close()
+    # finally:
+    #     driver.close()
 
 
 
@@ -141,14 +141,14 @@ if __name__ == "__main__":
     range_n = 30
     create_directory()
     download_chrome_driver()
-    download_phantomjs()
+    #download_phantomjs()
     #createThreads(0,20, 30)
     #createThreads(21, 40, 30)
     #createThreads(60, 80, 30)
-    createThreads(81, 100, 30)
-    createThreads(101, 120, 30)
-    createThreads(121, 140, 30)
-    createThreads(141, 160, 30)
-    for x in range(0,150000, 20):
-        #createThreads(x, x +19, range_n)
-        print(x, x+19, range_n)
+    #createThreads(81, 100, 30)
+    #createThreads(101, 120, 30)
+    #createThreads(121, 140, 30)
+    #createThreads(141, 160, 30)
+    for x in range(140,150000, 20):
+        print(x, x + 19, range_n)
+        createThreads(x, x +19, range_n)
