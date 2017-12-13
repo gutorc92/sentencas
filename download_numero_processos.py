@@ -88,9 +88,9 @@ class Extract_Numbers:
     def join(self):
         self.t1.join()
         print(self.arquivos)
-        d = DownloadSetence(self.create_driver(), self.arquivos)
-        print("Vai executar o download de arqvuivos")
-        d.download_pdf_sentencas()
+        #d = DownloadSetence(self.create_driver(), self.arquivos)
+        #print("Vai executar o download de arqvuivos")
+        #d.download_pdf_sentencas()
 
     def os_path(self, file_win, file_linux):
         setencas_dir = os.path.dirname(os.path.realpath(__file__))

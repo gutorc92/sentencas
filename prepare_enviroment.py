@@ -137,10 +137,10 @@ def createThreads(init, end, range_n):
 
 
 
-if __name__ == "__main__":
-    range_n = 30
-    create_directory()
-    download_chrome_driver()
+#if __name__ == "__main__":
+#    range_n = 30
+#    create_directory()
+#    download_chrome_driver()
     #download_phantomjs()
     #createThreads(0,20, 30)
     #createThreads(21, 40, 30)
@@ -149,6 +149,10 @@ if __name__ == "__main__":
     #createThreads(101, 120, 30)
     #createThreads(121, 140, 30)
     #createThreads(141, 160, 30)
-    for x in range(140,150000, 20):
-        print(x, x + 19, range_n)
-        createThreads(x, x +19, range_n)
+#    for x in range(140,150000, 20):
+#        print(x, x + 19, range_n)
+#        createThreads(x, x +19, range_n)
+
+if __name__ == "__main__":
+    ex = Extract_Numbers(1, 1, 900000, None)
+    ex.download()
