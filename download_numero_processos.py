@@ -80,6 +80,7 @@ class Extract_Numbers:
                 self.logger.info("A url nao pode ser encontrada: %s", str(url_t))
         end = datetime.now()
         print("Took {}s to rund thread {}".format((end - start).total_seconds(), self.id))
+        del session
 
     def run(self):
         self.t1 = threading.Thread(target=self.download)

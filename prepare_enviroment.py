@@ -12,6 +12,7 @@ from selenium import webdriver
 if platform.system() == "Windows":
     import win32com.client as win32
 from traceback import print_exc
+import time
 
 
 def os_path(file_win, file_linux):
@@ -154,5 +155,7 @@ def createThreads(init, end, range_n):
 #        createThreads(x, x +19, range_n)
 
 if __name__ == "__main__":
-    ex = Extract_Numbers(1, 1, 900000, None)
-    ex.download()
+    for x in range(3, 150000, 40):
+        ex = Extract_Numbers(1, x, x+39, None)
+        ex.download()
+        time.sleep(7200)
