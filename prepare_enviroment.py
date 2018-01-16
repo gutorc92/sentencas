@@ -13,6 +13,7 @@ if platform.system() == "Windows":
     import win32com.client as win32
 from traceback import print_exc
 import time
+import random
 
 
 def os_path(file_win, file_linux):
@@ -138,24 +139,12 @@ def createThreads(init, end, range_n):
 
 
 
-#if __name__ == "__main__":
-#    range_n = 30
-#    create_directory()
-#    download_chrome_driver()
-    #download_phantomjs()
-    #createThreads(0,20, 30)
-    #createThreads(21, 40, 30)
-    #createThreads(60, 80, 30)
-    #createThreads(81, 100, 30)
-    #createThreads(101, 120, 30)
-    #createThreads(121, 140, 30)
-    #createThreads(141, 160, 30)
-#    for x in range(140,150000, 20):
-#        print(x, x + 19, range_n)
-#        createThreads(x, x +19, range_n)
-
 if __name__ == "__main__":
-    for x in range(3, 150000, 40):
+    settings = Settings()
+    settings.extract_settings()
+    for x in range(int(settings.init), 150000, 40):
         ex = Extract_Numbers(1, x, x+39, None)
         ex.download()
-        time.sleep(7200)
+        del ex
+        time_sleep = random.randint(30,200)
+        time.sleep(time_sleep)

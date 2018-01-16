@@ -27,7 +27,7 @@ class Extract_Numbers:
 
     def create_log_(self, id):
         name = "log_extract_numbers_" + str(id)
-        self.log_file = "log_extract_numbers_" + str(id) + "_" + datetime.now().strftime("%d%m%Y_%M_%H")
+        self.log_file = "log_extract_numbers_" + str(id) + "_" + datetime.now().strftime("%d%m%Y_%H_%M")
         self.logger = self.s.createLogFile(name, self.log_file)
 
     def extrai_numero_processo(self, id, response):

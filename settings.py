@@ -16,7 +16,7 @@ class Settings(object):
 
     def __init__(self, file_path=None):
         self.file_path = file_path if file_path is not None else self.find_settings_file()
-        self.settings_values = {"path": "required"}
+        self.settings_values = {"path": "required", "init": "required"}
 
     def find_settings_file(self):
         search_paths = [
@@ -70,6 +70,10 @@ class Settings(object):
         handler.setFormatter(formatter)
         logger = logging.getLogger(name)
         logger.setLevel(logging.INFO)
+        handlers = logger.handlers[:]
+        for h in handlers:
+            h.close()
+            logger.removeHandler(h)        
         logger.addHandler(handler)
 
         return logger
