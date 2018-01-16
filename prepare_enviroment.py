@@ -14,8 +14,12 @@ if platform.system() == "Windows":
 from traceback import print_exc
 import time
 import random
+<<<<<<< HEAD
 import re
 import codecs
+=======
+from networking import ProxedHTTPRequester
+>>>>>>> Usando tor
 
 
 def os_path(file_win, file_linux):
@@ -143,7 +147,6 @@ def createThreads(init, end, range_n):
 
 if __name__ == "__main__":
     settings = Settings()
-    settings.extract_settings()
     for x in range(int(settings.endt), int(settings.init), -40):
         try:
             ex = Extract_Numbers(1, x-39, x, None)
@@ -161,3 +164,4 @@ if __name__ == "__main__":
             settings.replace_setting("endt:", pagina)
             
             
+=
