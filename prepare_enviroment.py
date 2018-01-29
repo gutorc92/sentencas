@@ -14,6 +14,8 @@ if platform.system() == "Windows":
 from traceback import print_exc
 import time
 import random
+import re
+import codecs
 
 
 def os_path(file_win, file_linux):
@@ -142,9 +144,20 @@ def createThreads(init, end, range_n):
 if __name__ == "__main__":
     settings = Settings()
     settings.extract_settings()
-    for x in range(int(settings.init), 150000, 40):
-        ex = Extract_Numbers(1, x, x+39, None)
-        ex.download()
-        del ex
-        time_sleep = random.randint(30,200)
-        time.sleep(time_sleep)
+    for x in range(int(settings.endt), int(settings.init), -40):
+        try:
+            ex = Extract_Numbers(1, x-39, x, None)
+            ex.download()
+            del ex
+            time_sleep = random.randint(30,200)
+            time.sleep(time_sleep)
+        except KeyboardInterrupt:
+            last_file = settings.getLastFile()
+            text = ""
+            with codecs.open(os.path.join(dir, last_file), "r", "utf-8") as handle:
+                text = handle.read()
+            pagina = re.findall("Pagina (\d+)", text)[-1]
+            print(pagina)
+            settings.replace_setting("endt:", pagina)
+            
+            

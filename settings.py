@@ -2,6 +2,7 @@
 import os
 import re
 import logging
+import operator
 
 class MissingFileSettings(Exception):
     pass
@@ -16,7 +17,8 @@ class Settings(object):
 
     def __init__(self, file_path=None):
         self.file_path = file_path if file_path is not None else self.find_settings_file()
-        self.settings_values = {"path": "required", "init": "required"}
+        self.settings_values = {"path": "required", "init": "required","endt": "required" }
+        self.extract_settings()
 
     def find_settings_file(self):
         search_paths = [
@@ -77,4 +79,22 @@ class Settings(object):
         logger.addHandler(handler)
 
         return logger
+
+    def getLastFile(self, dir_="log"):
+        dir_path = os.path.join(self.path, dir_)
+        dict_dir = {}
+        for filename in os.listdir(dir_path):
+            dict_dir[filename] = os.stat(os.path.join(dir_path, filename)).st_mtime
+
+        return sorted(dict_dir.items(), key=operator.itemgetter(1), reverse=True)[0][0]
+
+    def replace_settings(self, setting, value):
+        setting = "(" + setting +  ")" + " (\d+)"
+        print(setting)
+        text = ""
+        with open(self.file_path, "r") as handle:
+            text = handle.read()
+        text = re.sub(setting, r"\1 " + value, text)
+        with open(self.file_path, "w") as handle:
+            handle.write(text)
 
