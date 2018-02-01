@@ -15,19 +15,13 @@ if platform.system() == "Windows":
 from traceback import print_exc
 import time
 import random
-<<<<<<< HEAD
 import re
 import codecs
-=======
 from networking import ProxedHTTPRequester
-<<<<<<< HEAD
->>>>>>> Usando tor
-
-=======
 import codecs
 import re
 from urlstjsp import *
->>>>>>> SingleThread
+
 
 def os_path(file_win, file_linux):
     setencas_dir = os.path.dirname(os.path.realpath(__file__))
@@ -154,17 +148,24 @@ def createThreads(init, end, range_n):
 
 if __name__ == "__main__":
     settings = Settings()
-    for x in range(int(settings.init), 6000000, 10):
+    for key, vara in dic_urls.items():
         try:
-            print(x)
-            session = ProxedHTTPRequester()
-            ex = Extract_Numbers(1, x, x+10, None, session)
-            ex.download()
-            del ex
-            session.close()
-            del session
-            time_sleep = random.randint(50,300)
-            time.sleep(time_sleep)
+            if not vara['done']:
+                print(vara['url'])
+                total = 0
+                for x in range(vara['init'], nr_paginas(vara['nr_registros']), 20):
+                    print(x)
+                    session = ProxedHTTPRequester()
+                    ex = Extract_Numbers(x, x+20, session, vara['url'])
+                    ex.download()
+                    total += ex.total
+                    del ex
+                    session.close()
+                    del session
+                    time_sleep = random.randint(50,300)
+                    time.sleep(time_sleep)
+                print("Total", total)
+                time.sleep(3600)
         except KeyboardInterrupt:
             last_file = settings.getLastFile()
             text = ""
