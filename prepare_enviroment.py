@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 import platform
 import urllib.request
 import zipfile
@@ -19,8 +20,14 @@ import re
 import codecs
 =======
 from networking import ProxedHTTPRequester
+<<<<<<< HEAD
 >>>>>>> Usando tor
 
+=======
+import codecs
+import re
+from urlstjsp import *
+>>>>>>> SingleThread
 
 def os_path(file_win, file_linux):
     setencas_dir = os.path.dirname(os.path.realpath(__file__))
@@ -147,12 +154,16 @@ def createThreads(init, end, range_n):
 
 if __name__ == "__main__":
     settings = Settings()
-    for x in range(int(settings.endt), int(settings.init), -40):
+    for x in range(int(settings.init), 6000000, 10):
         try:
-            ex = Extract_Numbers(1, x-39, x, None)
+            print(x)
+            session = ProxedHTTPRequester()
+            ex = Extract_Numbers(1, x, x+10, None, session)
             ex.download()
             del ex
-            time_sleep = random.randint(30,200)
+            session.close()
+            del session
+            time_sleep = random.randint(50,300)
             time.sleep(time_sleep)
         except KeyboardInterrupt:
             last_file = settings.getLastFile()
@@ -162,6 +173,5 @@ if __name__ == "__main__":
             pagina = re.findall("Pagina (\d+)", text)[-1]
             print(pagina)
             settings.replace_setting("endt:", pagina)
-            
-            
-=
+            sys.exit()
+

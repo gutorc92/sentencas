@@ -12,7 +12,6 @@ from downloadsentences import DownloadSetence
 
 if __name__ == "__main__":
     s = Settings()
-    s.extract_settings()
     list_files = os.listdir(os.path.join(s.path, "numero_processos"))
     process = set()
     for file_path in list_files:

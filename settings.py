@@ -20,6 +20,7 @@ class Settings(object):
         self.settings_values = {"path": "required", "init": "required","endt": "required" }
         self.extract_settings()
 
+
     def find_settings_file(self):
         search_paths = [
             os.path.join(os.path.dirname(os.path.realpath(__file__)), self.FILE_SETTINGS),

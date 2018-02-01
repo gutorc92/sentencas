@@ -36,11 +36,13 @@ class Extract_Numbers:
         page = BeautifulSoup(response.content, "html.parser")
         div = page.find("div", {"id": "divDadosResultado"})
         if div is None:
-            self.logger.debug("Nao encontrou a div de dados")
+            self.logger.info("Nao encontrou a div de dados")
+            print(page)
             return 0
 
         as_tag = div.find_all("a")
         if as_tag is None:
+            self.logger.info("Não encontrou links")
             return None
         names = set()
         for a in as_tag:
@@ -56,7 +58,7 @@ class Extract_Numbers:
             self.arquivo = arquivo
             self.arquivos.append(self.arquivo)
             self.num = 0
-        
+        self.logger.info("Quantidade de registros %d" % len(names))
         with open(os.path.join(self.s.path, "numero_processos", arquivo), "a") as f:
             for n in names:
                 f.write(n)

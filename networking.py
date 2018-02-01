@@ -17,6 +17,7 @@ class ProxedHTTPRequester(metaclass=Singleton):
         user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
         self.__headers = {'User-Agent': user_agent}
         self.__renew_connection()
+        self.session = self.__get_new_session()
 
     def head(self, url):
         session = self.__get_new_session()
@@ -32,9 +33,7 @@ class ProxedHTTPRequester(metaclass=Singleton):
         _TaskManager().init_privoxy()
 
     def __request(self, url):
-        session = self.__get_new_session()
-        html = session.get(url, proxies=self.__proxies, headers=self.__headers)
-        session.close()
+        html = self.session.get(url, proxies=self.__proxies, headers=self.__headers)
         return html
 
     def __get_new_session(self):
@@ -50,6 +49,8 @@ class ProxedHTTPRequester(metaclass=Singleton):
             controller.signal(Signal.NEWNYM)
             controller.close()
 
+    def close(self):
+        self.session.close()
 
 class _TaskManager(metaclass=Singleton):
     def __init__(self):
