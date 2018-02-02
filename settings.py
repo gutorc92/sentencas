@@ -80,13 +80,17 @@ class Settings(object):
 
         return logger
 
-    def getLastFile(self, dir_="log"):
+    def getLastFile(self, dir_="log", abspath=False):
         dir_path = os.path.join(self.path, dir_)
         dict_dir = {}
         for filename in os.listdir(dir_path):
             dict_dir[filename] = os.stat(os.path.join(dir_path, filename)).st_mtime
 
-        return sorted(dict_dir.items(), key=operator.itemgetter(1), reverse=True)[0][0]
+        last_file_name = sorted(dict_dir.items(), key=operator.itemgetter(1), reverse=True)[0][0]
+        if abspath:
+            return self.join(self.path, dir_, last_file_name) 
+        else: 
+            return last_file_name
 
     def replace_settings(self, setting, value):
         setting = "(" + setting +  ")" + " (\d+)"
