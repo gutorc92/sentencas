@@ -151,12 +151,13 @@ if __name__ == "__main__":
     for key, vara in dic_urls.items():
         try:
             if not vara['done']:
-                print(vara['url'])
+                print(vara['name'])
                 total = 0
-                for x in range(vara['init'], nr_paginas(vara['nr_registros']), 20):
+                start = datetime.now();
+                for x in range(vara['init'], nr_paginas(vara['nr_registros']), 30):
                     print(x)
                     session = ProxedHTTPRequester()
-                    ex = Extract_Numbers(x, x+20, session, vara['url'])
+                    ex = Extract_Numbers(x, x+30, session, vara['url'])
                     ex.download()
                     total += ex.total
                     del ex
@@ -165,6 +166,8 @@ if __name__ == "__main__":
                     time_sleep = random.randint(50,300)
                     time.sleep(time_sleep)
                 print("Total", total)
+                end = datetime.now()
+                print("Demorou {} minutos para rodar a vara de {}".format((end-start).total_seconds()/60, vara['name']))
                 time.sleep(3600)
         except KeyboardInterrupt:
             last_file = settings.getLastFile()

@@ -82,4 +82,4 @@ class Extract_Numbers:
             else:
                 self.logger.info("A url nao pode ser encontrada: %s", str(url_t))
         end = datetime.now()
-        print("Took {}s to rund thread".format((end - start).total_seconds()))
+        print("Demorou {}s para fazer download das paginas".format((end - start).total_seconds()))

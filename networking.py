@@ -16,7 +16,7 @@ class ProxedHTTPRequester(metaclass=Singleton):
         self.__proxies = {"http": "127.0.0.1:8118", "https": "127.0.0.1:8118"}
         user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
         self.__headers = {'User-Agent': user_agent}
-        self.__renew_connection()
+        #self.__renew_connection()
         self.session = self.__get_new_session()
 
     def head(self, url):
@@ -76,7 +76,7 @@ class _TaskManager(metaclass=Singleton):
     def start_tor(self):
         # TODO: extend for UNIX
         self.__tor = subprocess.Popen(
-            ["tor.exe", "-f", "Data\\Tor\\torrc"], shell=True, cwd="thirdpartsprocs\\Tor"
+            ["tor", "-f", "Data\\Tor\\torrc"], shell=True, cwd="thirdpartsprocs\\Tor"
         )
 
     def init_privoxy(self):
@@ -85,11 +85,6 @@ class _TaskManager(metaclass=Singleton):
 
     def start_privoxy(self):
         # TODO: extend for UNIX
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags = subprocess.STARTF_USESHOWWINDOW
-        startupinfo.wShowWindow = 0
-        CREATE_NO_WINDOW = 0x08000000
         self.__privoxy = subprocess.Popen(
-            ["privoxy.exe"], cwd="thirdpartsprocs\\privoxy-3.0.26",
-            startupinfo=startupinfo, creationflags=CREATE_NO_WINDOW, shell=True
+            ["privoxy"], cwd="thirdpartsprocs\\privoxy", shell=True
         )
