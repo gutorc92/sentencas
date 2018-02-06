@@ -5,6 +5,7 @@ import time
 import platform
 import codecs
 from settings import Settings
+from scrapypage import ScrapySentence
 from datetime import datetime
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
@@ -20,6 +21,7 @@ class DownloadSetence(object):
         self.create_log_file()
         self.processNumbers = processNumbers
         self.debug = debug
+        self.scrapysentence = ScrapySentence(webDriver, debug)
 
     def create_log_file(self):
         log_file = "log_" + datetime.now().strftime("%d%m%Y_%H_%M")
@@ -32,11 +34,6 @@ class DownloadSetence(object):
         estatistica_file = ".".join([estatistica_file, "csv"])
         return estatistica_file
 
-    def create_url(self, processo):
-        lista_proc = processo.split("-")
-        url = "https://esaj.tjsp.jus.br/cjpg/obterArquivo.do?cdProcesso=" + lista_proc[0] + "&cdForo=" + lista_proc[
-            1] + "&nmAlias=" + lista_proc[2] + "&cdDocumento=" + lista_proc[3];
-        return url
 
     def file_name(self, processo):
         return processo.replace("-","_").replace("\n","")
@@ -51,83 +48,16 @@ class DownloadSetence(object):
         with codecs.open(self.complete_file_name(processo), "w", "utf-8") as handle:
             handle.write(text)
 
-    def extract_left_px(self, attribute):
-        if attribute.find("rotate") == -1:
-            rotate =  False
-        else:
-            rotate =  True
-        try:
-            left = float(attribute.split(";")[0].split(":")[1].lstrip().replace("px",""))
-        except:
-            logging.exception("Cannot find left on style %s" % attribute)
-            left = -1
-        return left, rotate
-
-        
-
-    def extract_num_pages(self, element):
-        nr_pages = 1
-        num_pages = element.text.replace("de ", "")
-        num_pages = num_pages.replace("of ", "")
-        try:
-            nr_pages = int(num_pages)
-        except ValueError:
-            logging.info("Cannot convert page number.")
-        return nr_pages
 
     def download_processo(self, driver, linha, dados):
-        print(self.debug)
-        url = self.create_url(linha)
-        driver.get(url);
-        time.sleep(4)
-        try:
-            WebDriverWait(driver, 30).until(
-                EC.frame_to_be_available_and_switch_to_it(driver.find_element_by_tag_name('iframe'))
-            )
-        except:
-            logging.info("Cannot wait for frame")
-        num_pages = self.switch_to_frame(driver, linha, url)
-        time.sleep(1)
-        try:
-            if not self.debug:
-                dados.write(self.file_name(linha) + "," + str(num_pages) + "\n")  
-            elements = driver.find_elements_by_class_name("textLayer")
-            text = ""
-            for element in elements:
-                divs = element.find_elements_by_tag_name("div")
-                line = ""
-                size_left = -1
-                for div in divs:
-                    #print(div.get_attribute('style')) 
-                    size_div_actual, rotate = self.extract_left_px(div.get_attribute('style'))
-                    if not rotate:
-                        if size_left >= size_div_actual:
-                            text += line + "\n"
-                            line = ""
-                        line += div.text + " "
-                            
-                        size_left = size_div_actual
-            if self.debug:
-                print(text)
-            else:
-                self.save_setence(linha, text) 
+        text, num_pages = self.scrapysentence.download_page(linha)
+        if not self.debug:
+            dados.write(self.file_name(linha) + "," + str(num_pages) + "\n")  
+            self.save_setence(linha, text) 
                 
-        except NoSuchElementException:
-            logging.info("Text layer nao encontrada para a url: %s", str(url))
+       
 
 
-    def switch_to_frame(self, driver, processo, url):
-        try:
-            num_pages = self.extract_num_pages(driver.find_element_by_id("numPages"))
-            if num_pages > 1:
-                page_container = driver.find_element_by_id("pageContainer%d" % num_pages)
-                page_container.location_once_scrolled_into_view()
-            return num_pages
-        except WebDriverException:
-            logging.exception("cannot scroll: %s url: %s" % (self.file_name(processo), url))
-        except:
-            logging.exception("cannot scroll: %s url: %s" % (self.file_name(processo), url))
-        return 1
 
     def get_file_path(self, path, *args):
         path_all = os.path.join(self.s.path, path)
