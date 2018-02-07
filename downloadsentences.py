@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
-import os
-import logging
-import time
-import platform
 import codecs
-from settings import Settings
-from scrapypage import ScrapySentence
+import logging
+import os
 from datetime import datetime
-from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException, WebDriverException
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+
+from scrapy.scrapypage import ScrapySentence
+from settings import Settings
+
 
 class DownloadSetence(object):
 

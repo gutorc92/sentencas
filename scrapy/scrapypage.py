@@ -107,3 +107,34 @@ class ScrapySentence(object):
         return text, num_pages
 
 
+class ScrapyNrProcess:
+
+    def __init__(self, session, logging):
+        self.session = session
+        self.logger = logging
+
+    def extrai_numero_processo(self, response):
+        page = BeautifulSoup(response.content, "html.parser")
+        div = page.find("div", {"id": "divDadosResultado"})
+        if div is None:
+            self.logger.info("Nao encontrou a div de dados")
+            return set()
+
+        link_tag = div.find_all("a")
+        if link_tag is None:
+            self.logger.info("Não encontrou links")
+            return set()
+        names = set()
+        for link in link_tag:
+            names.add(a["name"])
+        return names
+
+
+    def download_page(self, page):
+            url_t = "http://esaj.tjsp.jus.br/cjpg/trocarDePagina.do?pagina=" + str(page) + "&conversationId="
+            self.logger.info("Pagina %s", str(page))
+            response = self.session.get(url_t)
+            if response.status_code == req.codes.ok:
+                return self.extrai_numero_processo(response)
+            else:
+                self.logger.info("A url nao pode ser encontrada: %s", str(url_t))
