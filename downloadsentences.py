@@ -4,7 +4,7 @@ import logging
 import os
 from datetime import datetime
 
-from scrapy.scrapypage import ScrapySentence
+from pages.scrapypage import ScrapySentence
 from settings import Settings
 
 

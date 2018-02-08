@@ -8,7 +8,7 @@ from stem import Signal
 from stem.control import Controller
 
 from utils import Singleton
-
+import platform
 
 class ProxedHTTPRequester(metaclass=Singleton):
     def __init__(self):
@@ -16,7 +16,7 @@ class ProxedHTTPRequester(metaclass=Singleton):
         self.__proxies = {"http": "127.0.0.1:8118", "https": "127.0.0.1:8118"}
         user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
         self.__headers = {'User-Agent': user_agent}
-        #self.__renew_connection()
+        self.__renew_connection()
         self.session = self.__get_new_session()
 
     def head(self, url):
@@ -58,7 +58,7 @@ class _TaskManager(metaclass=Singleton):
         self.__privoxy = None
 
     def checkIfTaskRunning(self, task_name):
-        task_names = set([it.name() for it in psutil.process_iter(attrs=['name'])])
+        task_names = set([it.name for it in psutil.process_iter()])
         return task_name in task_names
 
     @property
@@ -75,8 +75,9 @@ class _TaskManager(metaclass=Singleton):
 
     def start_tor(self):
         # TODO: extend for UNIX
+        prog = "tor.exe" if platform.system() == "Windows" else "tor"
         self.__tor = subprocess.Popen(
-            ["tor", "-f", "Data\\Tor\\torrc"], shell=True, cwd="thirdpartsprocs\\Tor"
+            [prog, "-f", "Data\\Tor\\torrc"], shell=True, cwd="thirdpartsprocs\\Tor"
         )
 
     def init_privoxy(self):
@@ -85,6 +86,7 @@ class _TaskManager(metaclass=Singleton):
 
     def start_privoxy(self):
         # TODO: extend for UNIX
+        prog = "privoxy.exe" if platform.system() == "Windows" else "privoxy"
         self.__privoxy = subprocess.Popen(
-            ["privoxy"], cwd="thirdpartsprocs\\privoxy", shell=True
+            [prog], cwd="thirdpartsprocs\\privoxy-3.0.26", shell=True
         )

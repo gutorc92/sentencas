@@ -11,6 +11,8 @@ from selenium.common.exceptions import NoSuchElementException, WebDriverExceptio
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import requests as req
+from bs4 import BeautifulSoup
 
 class ScrapySentence(object):
 
@@ -124,10 +126,11 @@ class ScrapyNrProcess:
         if link_tag is None:
             self.logger.info("Não encontrou links")
             return set()
-        names = set()
+        processes = set()
         for link in link_tag:
-            names.add(a["name"])
-        return names
+            processes.add(link["name"])
+        self.logger.info("nr_processes %s", str(len(processes)))
+        return processes
 
 
     def download_page(self, page):

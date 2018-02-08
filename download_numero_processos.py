@@ -9,7 +9,7 @@ from downloadsentences import DownloadSetence
 import platform
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
-from scrapy import ScrapyNrProcess
+from pages.scrapypage import ScrapyNrProcess
 
 
 class Extract_Numbers:
@@ -20,7 +20,6 @@ class Extract_Numbers:
         self.create_log_()
         self.pagInit = 1 if pagInit == 0 else pagInit
         self.pagEnd = pagEnd
-        self.num = num
         self.session = session
         self.url = url
         self.total = 0
@@ -50,7 +49,7 @@ class Extract_Numbers:
         all_processes = set()
         for i in range(self.pagInit, self.pagEnd):
             processes = scrapyprocesses.download_page(i)
-            all_processes.union(processes)
+            all_processes = all_processes.union(processes)
         self.save_processos(all_processes)
         self.total += len(all_processes)
         end = datetime.now()
