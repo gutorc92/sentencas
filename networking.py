@@ -106,12 +106,14 @@ class _TaskManager(metaclass=Singleton):
             self.close_tor()
 
     def close_tor(self):
-        self.__tor.terminate()
+        if self.__tor is not None:
+            self.__tor.terminate()
 
     def end_privoxy(self):
         if self.is_privoxy_running:
             self.close_privoxy()
 
     def close_privoxy(self):
-        self.__privoxy.terminate()
+        if self.__privoxy is not None:
+            self.__privoxy.terminate()
 

@@ -16,16 +16,11 @@ from bs4 import BeautifulSoup
 
 class ScrapySentence(object):
 
-    def __init__(self, webDriver, debug=False):
+    def __init__(self, webDriver, logger, debug=False):
         self.s = Settings()
         self.driver = webDriver
-        self.create_log_file()
         self.debug = debug
-
-    def create_log_file(self):
-        name = "log_sentences_" + datetime.now().strftime("%d%m%Y_%H_%M_%S")
-        self.log_file = "log_sentences_" + datetime.now().strftime("%d%m%Y_%H_%M_%S") + ".txt"
-        self.logger = self.s.createLogFile(name, self.log_file)
+        self.logger = logger
 
     def create_url(self, processo):
         lista_proc = processo.split("-")
@@ -73,9 +68,9 @@ class ScrapySentence(object):
                 page_container.location_once_scrolled_into_view()
             return num_pages
         except WebDriverException:
-            self.logger.exception("cannot scroll: %s url: %s" % (self.file_name(processo), url))
+            self.logger.exception("cannot scroll: %s url: %s" % (processo, url))
         except:
-            self.logger.exception("cannot scroll: %s url: %s" % (self.file_name(processo), url))
+            self.logger.exception("cannot scroll: %s url: %s" % (processo, url))
         return 1
 
     def extract_text_divs(self, divs):
@@ -86,7 +81,7 @@ class ScrapySentence(object):
             size_div_actual, rotate = self.extract_left_px(div.get_attribute('style'))
             if not rotate:
                 if size_left >= size_div_actual:
-                    text += line + "\n"
+                    text += line + "\r\n"
                     line = ""
                 line += div.text + " "
                 size_left = size_div_actual
@@ -103,7 +98,7 @@ class ScrapySentence(object):
             for element in elements:
                 divs = element.find_elements_by_tag_name("div")
                 text = self.extract_text_divs(divs)
-            print(text) if self.debug else print('cu') 
+            print(text) if self.debug else 0
         except NoSuchElementException:
             self.logger.info("Text layer nao encontrada para a url: %s", str(url))
         return text, num_pages

@@ -15,7 +15,8 @@ import time
 import random
 from networking import ProxedHTTPRequester, _TaskManager
 from urlstjsp import *
-
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 def os_path(file_win, file_linux):
     setencas_dir = os.path.dirname(os.path.realpath(__file__))
@@ -184,6 +185,17 @@ def download_processes_numbers(settings):
             session.end()
             sys.exit()
 
+def download_setence():
+    driver = None
+    try:
+        driver  = create_driver()
+        d = DownloadSetence(driver, None)
+        d.download_pdf_sentencas()
+    except Exception as e:
+        print(e)
+    finally:
+        driver.close() if driver is not None else ''
+
 if __name__ == "__main__":
     settings = Settings()
     if len(sys.argv) > 1:
@@ -195,6 +207,8 @@ if __name__ == "__main__":
         download_processes_numbers(settings)
     elif "-g" in task:
         count_number_of_process(settings, option)
+    elif "-s" in task:
+        download_setence()
     else:
         print("-d para baixar numero de processos")
         print("-g para contar o numero de processos")

@@ -3,6 +3,7 @@ import os
 import re
 import logging
 import operator
+from datetime import datetime
 
 class MissingFileSettings(Exception):
     pass
@@ -65,9 +66,11 @@ class Settings(object):
             path_all = os.path.join(path_all, p)
         return path_all
 
-    def createLogFile(self,name, logFile):
+    def createLogFile(self, name_):
+        name = name_ + datetime.now().strftime("%d%m%Y_%H_%M_%S")
+        log_file = name + ".txt"
         formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-        log_file = os.path.join(self.path, "log", logFile)
+        log_file = os.path.join(self.path, "log", log_file)
         print("log file", log_file)
         handler = logging.FileHandler(log_file)
         handler.setFormatter(formatter)
