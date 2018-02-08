@@ -26,12 +26,12 @@ class Extract_Numbers:
 
 
     def create_log_(self):
-        name = "log_extract_numbers_" + datetime.now().strftime("%d%m%Y_%H_%M")
-        self.log_file = "log_extract_numbers_" + datetime.now().strftime("%d%m%Y_%H_%M") + ".txt"
+        name = "log_extract_numbers_" + datetime.now().strftime("%d%m%Y_%H_%M_%S")
+        self.log_file = "log_extract_numbers_" + datetime.now().strftime("%d%m%Y_%H_%M_%S") + ".txt"
         self.logger = self.s.createLogFile(name, self.log_file)
 
     def save_processos(self, names):
-        arquivo = "resultado_" + datetime.now().strftime("%d%m%Y_%H_%M") + ".txt"
+        arquivo = "resultado_" + datetime.now().strftime("%d%m%Y_%H_%M_%S") + ".txt"
         self.logger.info("Quantidade de registros %d" % len(names))
         with open(os.path.join(self.s.path, "numero_processos", arquivo), "a") as f:
             for n in names:

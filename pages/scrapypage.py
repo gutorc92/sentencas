@@ -23,8 +23,8 @@ class ScrapySentence(object):
         self.debug = debug
 
     def create_log_file(self):
-        name = "log_sentences_" + datetime.now().strftime("%d%m%Y_%H_%M")
-        self.log_file = "log_sentences_" + datetime.now().strftime("%d%m%Y_%H_%M") + ".txt"
+        name = "log_sentences_" + datetime.now().strftime("%d%m%Y_%H_%M_%S")
+        self.log_file = "log_sentences_" + datetime.now().strftime("%d%m%Y_%H_%M_%S") + ".txt"
         self.logger = self.s.createLogFile(name, self.log_file)
 
     def create_url(self, processo):

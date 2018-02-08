@@ -7,19 +7,13 @@ import zipfile
 from settings import Settings
 from downloadsentences import DownloadSetence
 from download_numero_processos import Extract_Numbers
-from selenium.webdriver.chrome.options import Options
 from datetime import datetime
-from selenium import webdriver
 if platform.system() == "Windows":
     import win32com.client as win32
 from traceback import print_exc
 import time
 import random
-import re
-import codecs
-from networking import ProxedHTTPRequester
-import codecs
-import re
+from networking import ProxedHTTPRequester, _TaskManager
 from urlstjsp import *
 
 
@@ -144,10 +138,28 @@ def createThreads(init, end, range_n):
     # finally:
     #     driver.close()
 
+def count_number_of_process(settings, option):
+    if option ==  'backup':
+        save_files = True
+    else:
+        save_files = False
+    list_files = os.listdir(os.path.join(settings.path, "numero_processos"))
+    process = set()
+    for file_path in list_files:
+        with open(os.path.join(settings.path, "numero_processos", file_path), "r") as f:
+            for line in f.readlines():
+                process.add(line.replace("\n", ""))
 
 
-if __name__ == "__main__":
-    settings = Settings()
+    print(len(process))
+    if save_files:
+        file_name = "backup_" + datetime.now().strftime("%d%m%Y_%H_%M_%S")
+        with open(os.path.join(s.path, "numero_processos", file_name), "w") as f:
+            for number in process:
+                f.write(number)
+                f.write("\n")
+
+def download_processes_numbers(settings):
     for key, vara in dic_urls.items():
         try:
             if not vara['done']:
@@ -163,19 +175,27 @@ if __name__ == "__main__":
                     del ex
                     session.close()
                     del session
-                    time_sleep = random.randint(50,300)
-                    time.sleep(time_sleep)
                 print("Total", total)
                 end = datetime.now()
                 print("Demorou {} minutos para rodar a vara de {}".format((end-start).total_seconds()/60, vara['name']))
                 time.sleep(3600)
         except KeyboardInterrupt:
-            last_file = settings.getLastFile()
-            text = ""
-            with codecs.open(os.path.join(dir, last_file), "r", "utf-8") as handle:
-                text = handle.read()
-            pagina = re.findall("Pagina (\d+)", text)[-1]
-            print(pagina)
-            settings.replace_setting("endt:", pagina)
+            session.close()
+            session.end()
             sys.exit()
 
+if __name__ == "__main__":
+    settings = Settings()
+    if len(sys.argv) > 1:
+        task = sys.argv[1]
+        option = sys.argv[2] if len(sys.argv) > 2 else ""
+    else:
+        task = "--help"
+    if "-d" in task:
+        download_processes_numbers(settings)
+    elif "-g" in task:
+        count_number_of_process(settings, option)
+    else:
+        print("-d para baixar numero de processos")
+        print("-g para contar o numero de processos")
+        print("--help para ajuda")

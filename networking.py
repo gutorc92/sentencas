@@ -49,16 +49,26 @@ class ProxedHTTPRequester(metaclass=Singleton):
             controller.signal(Signal.NEWNYM)
             controller.close()
 
+    def end(self):
+        _TaskManager().close()
+
     def close(self):
         self.session.close()
+
+
+
 
 class _TaskManager(metaclass=Singleton):
     def __init__(self):
         self.__tor = None
         self.__privoxy = None
 
+    def close(self):
+        self.end_privoxy()
+        self.end_tor()
+
     def checkIfTaskRunning(self, task_name):
-        task_names = set([it.name for it in psutil.process_iter()])
+        task_names = set([it.name() for it in psutil.process_iter()])
         return task_name in task_names
 
     @property
@@ -90,3 +100,18 @@ class _TaskManager(metaclass=Singleton):
         self.__privoxy = subprocess.Popen(
             [prog], cwd="thirdpartsprocs\\privoxy-3.0.26", shell=True
         )
+
+    def end_tor(self):
+        if self.is_tor_running:
+            self.close_tor()
+
+    def close_tor(self):
+        self.__tor.terminate()
+
+    def end_privoxy(self):
+        if self.is_privoxy_running:
+            self.close_privoxy()
+
+    def close_privoxy(self):
+        self.__privoxy.terminate()
+

@@ -17,7 +17,7 @@ class Settings(object):
 
     def __init__(self, file_path=None):
         self.file_path = file_path if file_path is not None else self.find_settings_file()
-        self.settings_values = {"path": "required", "init": "required"}
+        self.settings_values = {"path": "required"}
         self.extract_settings()
 
 

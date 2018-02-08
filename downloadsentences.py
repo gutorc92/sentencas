@@ -19,12 +19,12 @@ class DownloadSetence(object):
         self.scrapysentence = ScrapySentence(webDriver, debug)
 
     def create_log_file(self):
-        log_file = "log_" + datetime.now().strftime("%d%m%Y_%H_%M")
+        log_file = "log_" + datetime.now().strftime("%d%m%Y_%H_%M_%S")
         self.log_file = os.path.join(self.s.path, "log", log_file)
         logging.basicConfig(filename=self.log_file, format='%(levelname)s:%(message)s', level=logging.INFO)
 
     def create_estatisca_file(self):
-        estatistica_file = "sentences" + datetime.now().strftime("%d%m%Y_%M_%H")
+        estatistica_file = "sentences" + datetime.now().strftime("%d%m%Y_%M_%H_%S")
         estatistica_file = os.path.join(self.s.path, "estatistica", estatistica_file)
         estatistica_file = ".".join([estatistica_file, "csv"])
         return estatistica_file
