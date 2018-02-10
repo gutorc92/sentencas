@@ -106,38 +106,6 @@ def download_phantomjs():
         zip_ref.close()
         os.remove(phantomjs_zip)
 
-def createThreads(init, end, range_n):
-    driver = None
-    try:
-        start = datetime.now()
-        # ex = Extract_Numbers(21, 1, 1000000, driver)
-        # ex.run()
-        # ex.join()
-        x = list(range(init, end))
-        pagin = [t * range_n for t in x]
-        pagout = [t - 1 for t in pagin[1:]]
-        pagout.append(pagin[-1] + range_n)
-        list_ex = []
-        for id, pagi, pago in zip(x, pagin, pagout):
-             print(id, pagi, pago)
-             ex = Extract_Numbers(id, pagi, pago, driver)
-             list_ex.append(ex)
-
-        #start = datetime.now()
-        for p in list_ex:
-             p.run()
-
-        for p in list_ex:
-             p.join()
-        end = datetime.now()
-        print("Took {}s to run download with Threads".format((end - start).total_seconds()))
-        if platform.system() == "Windows":
-            send_email(list_ex)
-    except:
-        print("fodeu")
-        print_exc()
-    # finally:
-    #     driver.close()
 
 def count_number_of_process(settings, option):
     if option ==  'backup':
@@ -155,7 +123,7 @@ def count_number_of_process(settings, option):
     print(len(process))
     if save_files:
         file_name = "backup_" + datetime.now().strftime("%d%m%Y_%H_%M_%S")
-        with open(os.path.join(s.path, "numero_processos", file_name), "w") as f:
+        with open(os.path.join(settings.path, "numero_processos", file_name), "w") as f:
             for number in process:
                 f.write(number)
                 f.write("\n")
@@ -165,12 +133,14 @@ def download_processes_numbers(settings):
         try:
             if not vara['done']:
                 print(vara['name'])
+                logger = settings.createLogFile("log_extracted_numbers_")
+                logger.info("Vara %s" % vara['name'])
                 total = 0
                 start = datetime.now();
                 for x in range(vara['init'], nr_paginas(vara['nr_registros']), 30):
                     print(x)
                     session = ProxedHTTPRequester()
-                    ex = Extract_Numbers(x, x+30, session, vara['url'])
+                    ex = Extract_Numbers(x, x+30, session, vara['url'], logger)
                     ex.download()
                     total += ex.total
                     del ex
@@ -179,7 +149,8 @@ def download_processes_numbers(settings):
                 print("Total", total)
                 end = datetime.now()
                 print("Demorou {} minutos para rodar a vara de {}".format((end-start).total_seconds()/60, vara['name']))
-                time.sleep(3600)
+                logger.info("Demorou {} minutos para rodar a vara de {}".format((end-start).total_seconds()/60, vara['name']))
+                #time.sleep(3600)
         except KeyboardInterrupt:
             session.close()
             session.end()

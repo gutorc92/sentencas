@@ -124,7 +124,7 @@ class ScrapyNrProcess:
         processes = set()
         for link in link_tag:
             processes.add(link["name"])
-        self.logger.info("nr_processes %s", str(len(processes)))
+        #self.logger.info("nr_processes %s", str(len(processes)))
         return processes
 
 
@@ -136,3 +136,4 @@ class ScrapyNrProcess:
                 return self.extrai_numero_processo(response)
             else:
                 self.logger.info("A url nao pode ser encontrada: %s", str(url_t))
+                return set()

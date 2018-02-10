@@ -14,7 +14,7 @@ from pages.scrapypage import ScrapyNrProcess
 
 class Extract_Numbers:
 
-    def __init__(self, pagInit, pagEnd,session, url):
+    def __init__(self, pagInit, pagEnd,session, url, logger = None):
         self.arquivo = None
         self.s = Settings()
         self.pagInit = 1 if pagInit == 0 else pagInit
@@ -22,7 +22,7 @@ class Extract_Numbers:
         self.session = session
         self.url = url
         self.total = 0
-        self.logger = self.s.createLogFile("log_extracted_numbers_")
+        self.logger = self.s.createLogFile("log_extracted_numbers_") if logger is None else logger
 
     def save_processos(self, names):
         arquivo = "resultado_" + datetime.now().strftime("%d%m%Y_%H_%M_%S") + ".txt"
@@ -48,3 +48,4 @@ class Extract_Numbers:
         self.total += len(all_processes)
         end = datetime.now()
         print("Demorou {}s para fazer download das paginas".format((end - start).total_seconds()))
+        self.logger.info("Demorou {}s para fazer download das paginas".format((end - start).total_seconds()))
