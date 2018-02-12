@@ -160,6 +160,7 @@ def download_setence():
     driver = None
     try:
         driver  = create_driver()
+        driver.implicitly_wait(10)
         d = DownloadSetence(driver, None)
         d.download_pdf_sentencas()
     except Exception as e:
@@ -183,4 +184,5 @@ if __name__ == "__main__":
     else:
         print("-d para baixar numero de processos")
         print("-g para contar o numero de processos")
+        print("-s para baixar as sentencas")
         print("--help para ajuda")
