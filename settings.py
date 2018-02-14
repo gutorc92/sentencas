@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
-import time
-import codecs
 import re
-import getpass
-
+import logging
+import operator
+from datetime import datetime
 
 class MissingFileSettings(Exception):
     pass
@@ -20,27 +19,22 @@ class Settings(object):
     def __init__(self, file_path=None):
         self.file_path = file_path if file_path is not None else self.find_settings_file()
         self.settings_values = {"path": "required"}
+        self.extract_settings()
+
 
     def find_settings_file(self):
-        uritools_dir = os.path.dirname(os.path.realpath(__file__))
-        file_settings = os.path.join(uritools_dir, self.FILE_SETTINGS)
-        if os.path.isfile(file_settings):
-            return file_settings
-        uritools_dir = os.path.expanduser("~")
-        file_settings = os.path.join(uritools_dir, self.FILE_SETTINGS)
-        if os.path.isfile(file_settings):
-            return file_settings
-        file_settings = os.path.join(uritools_dir, "..", self.FILE_SETTINGS)
-        if os.path.isfile(file_settings):
-            return file_settings
-        file_settings = os.path.join(os.getcwd(), self.FILE_SETTINGS)
-        if os.path.isfile(file_settings):
-            return file_settings
-        file_settings = os.path.join(os.getcwd(), "..", self.FILE_SETTINGS)
-        if os.path.isfile(file_settings):
-            return file_settings
-        else:
-            return None
+        search_paths = [
+            os.path.join(os.path.dirname(os.path.realpath(__file__)), self.FILE_SETTINGS),
+            os.path.join(os.path.expanduser("~"), self.FILE_SETTINGS),
+            os.path.join(os.path.expanduser("~"), "..", self.FILE_SETTINGS),
+            os.path.join(os.getcwd(), self.FILE_SETTINGS),
+            os.path.join(os.getcwd(), "..", self.FILE_SETTINGS)
+        ]
+        settings_path = None
+        for file_path in search_paths:
+            if os.path.exists(file_path):
+                settings_path = file_path
+        return settings_path
 
 
     def get_setting(self, setting, line):
@@ -66,5 +60,45 @@ class Settings(object):
             self.__dict__[setting] = found
 
 
+    def join(self, path, *args):
+        path_all = os.path.join(self.path, path)
+        for p in list(args):
+            path_all = os.path.join(path_all, p)
+        return path_all
 
+    def createLogFile(self, name_):
+        name = name_ + datetime.now().strftime("%d%m%Y_%H_%M_%S")
+        log_file = name + ".txt"
+        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        log_file = os.path.join(self.path, "log", log_file)
+        print("log file", log_file)
+        handler = logging.FileHandler(log_file)
+        handler.setFormatter(formatter)
+        logger = logging.getLogger(name)
+        logger.setLevel(logging.INFO)
+        handlers = logger.handlers[:]
+        for h in handlers:
+            h.close()
+            logger.removeHandler(h)        
+        logger.addHandler(handler)
+
+        return logger
+
+    def getLastFile(self, dir_="log"):
+        dir_path = os.path.join(self.path, dir_)
+        dict_dir = {}
+        for filename in os.listdir(dir_path):
+            dict_dir[filename] = os.stat(os.path.join(dir_path, filename)).st_mtime
+
+        return sorted(dict_dir.items(), key=operator.itemgetter(1), reverse=True)[0][0]
+
+    def replace_settings(self, setting, value):
+        setting = "(" + setting +  ")" + " (\d+)"
+        print(setting)
+        text = ""
+        with open(self.file_path, "r") as handle:
+            text = handle.read()
+        text = re.sub(setting, r"\1 " + value, text)
+        with open(self.file_path, "w") as handle:
+            handle.write(text)
 

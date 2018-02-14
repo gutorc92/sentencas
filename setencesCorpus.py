@@ -19,7 +19,7 @@ class ReadSentences(object):
         self.createLog()
 
     def createLog(self):
-        log_file = "log" + datetime.now().strftime("%d%m%Y_%M_%H")
+        log_file = "log" + datetime.now().strftime("%d%m%Y_%M_%H_%S")
         self.log_file = os.path.join(self.s.path, "log", log_file)
         logging.basicConfig(filename=self.log_file, format='%(levelname)s:%(message)s', level=logging.INFO)
 
