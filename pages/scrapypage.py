@@ -37,7 +37,7 @@ class ScrapySentence(object):
         try:
             left = float(attribute.split(";")[0].split(":")[1].lstrip().replace("px",""))
         except:
-            self.logger.exception("Cannot find left on style %s" % attribute)
+            #self.logger.exception("Cannot find left on style %s" % attribute)
             left = -1
         return left, rotate
 
