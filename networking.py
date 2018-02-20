@@ -1,5 +1,6 @@
 import subprocess
 
+import os
 import psutil
 import requests
 from requests.adapters import HTTPAdapter
@@ -62,6 +63,7 @@ class _TaskManager(metaclass=Singleton):
     def __init__(self):
         self.__tor = None
         self.__privoxy = None
+        self.dir_ = os.path.dirname(os.path.abspath(__file__))
 
     def close(self):
         self.end_privoxy()
@@ -87,7 +89,7 @@ class _TaskManager(metaclass=Singleton):
         # TODO: extend for UNIX
         prog = "tor.exe" if platform.system() == "Windows" else "tor"
         self.__tor = subprocess.Popen(
-            [prog, "-f", "Data\\Tor\\torrc"], shell=True, cwd="thirdpartsprocs\\Tor"
+            [prog, "-f", os.path.join(self.dir_,"thirdpartsprocs", "Tor","Data",  "Tor", "torrc")], shell=True, cwd=os.path.join(self.dir_,"thirdpartsprocs", "Tor")
         )
 
     def init_privoxy(self):
@@ -98,7 +100,7 @@ class _TaskManager(metaclass=Singleton):
         # TODO: extend for UNIX
         prog = "privoxy.exe" if platform.system() == "Windows" else "privoxy"
         self.__privoxy = subprocess.Popen(
-            [prog], cwd="thirdpartsprocs\\privoxy-3.0.26", shell=True
+            [prog], cwd=os.path.join(self.dir_,"thirdpartsprocs","privoxy-3.0.26"), shell=True
         )
 
     def end_tor(self):
