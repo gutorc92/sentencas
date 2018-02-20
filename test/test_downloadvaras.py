@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from pages.scrapypage import ScrapyNrProcess
 from settings import Settings
 from networking import ProxedHTTPRequester
+import json
 
 def number_of_results(div_resultaos):
     table = div_resultaos.find('table')
@@ -42,9 +43,7 @@ if __name__ == "__main__":
     settings = Settings()
     ex = ScrapyNrProcess(session, settings.createLogFile("log_extracted_numbers__varas_"))
     for var1 in text:
-        print(var1)
         url_t = url_begin + var1 + url_end
-        print(url_t)
         response = session.get(url_t)
         if response.status_code == req.codes.ok:
             print("Deu certo")
@@ -52,5 +51,11 @@ if __name__ == "__main__":
             resultados = page.find('div', {'id': 'resultados'})
             if resultados is not None:
                 nr_results = number_of_results(resultados)
-                for x in range(1, nr_results):
-                    ex.download_page(x)
+                all_processes = []
+                for x in range(1, 3):
+                    all_processes = all_processes + ex.download_page(x)
+
+                serialized = json.dumps(all_processes, indent=4)
+
+                print(serialized)
+                break

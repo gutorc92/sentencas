@@ -114,8 +114,7 @@ class ScrapyNrProcess:
 
     def extract_link(self, table):
         link_tag = table.find("a")
-        print(link_tag)
-        if link_tag is None:
+        if link_tag is not None:
             return link_tag['name']
         else:
             return ""
@@ -154,21 +153,14 @@ class ScrapyNrProcess:
             return set()
 
         trs = div.find_all("tr", {'class':'fundocinza1'})
+        processes = []
         for tr in trs:
             data_, link = self.read_table(tr)
-            print("O link", link)
-            processes = self.extract_process_object(data_)
-            processes.set(9, link)
-            print(processes)
-        link_tag = div.find_all("a")
-        if link_tag is None:
-            self.logger.info("Não encontrou links")
-            return set()
-        processes = set()
-        for link in link_tag:
-            processes.add(link["name"])
-        #self.logger.info("nr_processes %s", str(len(processes)))
+            p = self.extract_process_object(data_)
+            p.set(9, link)
+            processes.append(p)
         return processes
+
 
 
     def download_page(self, page):
