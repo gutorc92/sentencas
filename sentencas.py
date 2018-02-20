@@ -156,17 +156,19 @@ def download_processes_numbers(settings):
             session.end()
             sys.exit()
 
-def download_setence():
-    driver = None
-    try:
-        driver  = create_driver()
-        driver.implicitly_wait(10)
-        d = DownloadSetence(driver, None)
-        d.download_pdf_sentencas()
-    except Exception as e:
-        print(e)
-    finally:
-        driver.close() if driver is not None else ''
+def download_setence(option):
+    while(1):
+        driver = None
+        try:
+            driver  = create_driver()
+            driver.implicitly_wait(8)
+            d = DownloadSetence(driver, None)
+            reverse = True if option == 'reverse' else False
+            d.download_pdf_sentencas(reverse)
+        except Exception as e:
+            print(e)
+        finally:
+            driver.close() if driver is not None else ''
 
 if __name__ == "__main__":
     settings = Settings()
@@ -180,7 +182,7 @@ if __name__ == "__main__":
     elif "-g" in task:
         count_number_of_process(settings, option)
     elif "-s" in task:
-        download_setence()
+        download_setence(option)
     else:
         print("-d para baixar numero de processos")
         print("-g para contar o numero de processos")

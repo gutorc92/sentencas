@@ -45,7 +45,7 @@ class DownloadSetence(object):
             dados.write(self.file_name(linha) + "," + str(num_pages) + "\n")  
             self.save_setence(linha, text)
 
-    def read_all_processes(self):
+    def read_all_processes(self, reverse=False):
         arquivos_numero_processos = os.listdir(self.s.join("numero_processos"))
         processos = set()
         for file_path in arquivos_numero_processos:
@@ -53,6 +53,7 @@ class DownloadSetence(object):
                 for line in handle.readlines():
                     processos.add(line.replace("\n",""))
 
+        processos = sorted(processos) if reverse is False else sorted(processos, reverse=True)
         return processos
 
     def read_process(self):
@@ -75,10 +76,10 @@ class DownloadSetence(object):
                     processos.add(self.processo_name(values[0]))
         return processos
 
-    def download_pdf_sentencas(self):
+    def download_pdf_sentencas(self, reverse=False):
         dados = None
         try:
-            process = self.read_process() if self.processNumbers is not None else  self.read_all_processes()
+            process = self.read_process() if self.processNumbers is not None else  self.read_all_processes(reverse)
             dados = open(self.create_estatisca_file(), "w")
             for line in process:
                 if not os.path.exists(self.s.join("numero_processos", self.file_name(line))):
