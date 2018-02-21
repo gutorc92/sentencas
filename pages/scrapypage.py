@@ -137,8 +137,9 @@ class ScrapyNrProcess:
         p = Process()
         for i, info in enumerate(data, 0):
             info = info[0] if len(info) == 1 else info
-            #print(i, info) if i != 8 else print()
-            if i == 0:
+            #print(i, info) if i == 8 else print()
+            
+            if i == 0 or i == 8:
                 p.set(i,info)
             else:
                 p.set(i, info.split("\n")[1].replace('\t', ''))

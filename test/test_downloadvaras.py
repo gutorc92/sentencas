@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import codecs
 import sys
 import platform
 import re
@@ -31,8 +32,12 @@ def number_of_results(div_resultaos):
     else:
         return 1
 
+def jdefault(o):
+            return o.__dict__ 
+
 if __name__ == "__main__":
-    with open("varas.txt") as handle:
+    dir_ = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(dir_,"./varas.txt")) as handle:
         text = handle.readlines()
     text = text[0].split(",")
     print(len(text))
@@ -52,10 +57,10 @@ if __name__ == "__main__":
             if resultados is not None:
                 nr_results = number_of_results(resultados)
                 all_processes = []
-                for x in range(1, 3):
+                for x in range(1, nr_results):
                     all_processes = all_processes + ex.download_page(x)
 
-                serialized = json.dumps(all_processes, indent=4)
-
-                print(serialized)
+                serialized = json.dumps(all_processes, indent=4, default=jdefault,ensure_ascii=False )
+                with codecs.open(os.path.join(dir_, "output.json"), "w", "utf-8") as handle:
+                    handle.write(serialized)
                 break
