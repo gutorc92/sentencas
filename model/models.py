@@ -28,3 +28,10 @@ class Process(json.JSONEncoder):
                           sort_keys=True, indent=4)
 
     
+
+def create_process(key, values):
+    p = Process()
+    for k, v in zip(key, values):
+        #print(k, v)
+        p.__setattr__(k, v)
+    return p
