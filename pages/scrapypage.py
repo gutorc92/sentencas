@@ -137,8 +137,6 @@ class ScrapyNrProcess:
         p = Process()
         for i, info in enumerate(data, 0):
             info = info[0] if len(info) == 1 else info
-            #print(i, info) if i == 8 else print()
-            
             if i == 0 or i == 8:
                 p.set(i,info)
             else:
@@ -151,7 +149,7 @@ class ScrapyNrProcess:
         div = page.find("div", {"id": "divDadosResultado"})
         if div is None:
             self.logger.info("Nao encontrou a div de dados")
-            return set()
+            return []
 
         trs = div.find_all("tr", {'class':'fundocinza1'})
         processes = []
@@ -172,4 +170,4 @@ class ScrapyNrProcess:
                 return self.extract_process(response)
             else:
                 self.logger.info("A url nao pode ser encontrada: %s", str(url_t))
-                return set()
+                return []

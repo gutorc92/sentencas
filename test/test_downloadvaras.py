@@ -10,6 +10,7 @@ from pages.scrapypage import ScrapyNrProcess
 from settings import Settings
 from networking import ProxedHTTPRequester
 import json
+from pymongo import MongoClient
 
 def number_of_results(div_resultaos):
     table = div_resultaos.find('table')
@@ -46,6 +47,9 @@ if __name__ == "__main__":
     #for var1, var2 in zip(text[0:997], text[997:]):
     session = ProxedHTTPRequester()
     settings = Settings()
+    client = MongoClient('mongodb://localhost:27017/')
+    db = client.process_database
+    mprocesses = db.processes
     ex = ScrapyNrProcess(session, settings.createLogFile("log_extracted_numbers__varas_"))
     for var1 in text:
         url_t = url_begin + var1 + url_end
@@ -60,7 +64,11 @@ if __name__ == "__main__":
                 for x in range(1, nr_results):
                     all_processes = all_processes + ex.download_page(x)
 
-                serialized = json.dumps(all_processes, indent=4, default=jdefault,ensure_ascii=False )
-                with codecs.open(os.path.join(dir_, "output.json"), "w", "utf-8") as handle:
-                    handle.write(serialized)
+                #serialized = json.dumps(all_processes, indent=4, default=jdefault,ensure_ascii=False )
+                for p in all_processes: 
+                    processes_id = mprocesses.insert_one(p.__dict__).inserted_id
+                    print(processes_id)
+                
+                #with codecs.open(os.path.join(dir_, "output.json"), "w", "utf-8") as handle:
+                #    handle.write(serialized)
                 break

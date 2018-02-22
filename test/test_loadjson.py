@@ -19,7 +19,7 @@ def jdefault(o):
             return o.__dict__
 
 if __name__ == "__main__":
-    client = MongoClient('mongodb://10.1.49.19:27017/')
+    client = MongoClient('mongodb://localhost:27017/')
     db = client.process_database
     mprocesses = db.processes
     dir_ = os.path.dirname(os.path.abspath(__file__))
