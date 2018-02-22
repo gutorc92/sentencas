@@ -33,14 +33,21 @@ class Varas():
         self.nr_code = nr_code
         self.state = 'SP' if state is None else state
         self.done = False if done is None else done
+        self._id = None
 
 
     def __str__(self):
         return "%s, %s, %s" % (self.nr_code, self.state, self.done)
 
     def insert(self, mvaras):
-        varas_id = mvaras.insert_one({'nr_code': self.nr_code, 'done': self.done, 'state': self.state}).inserted_id
-        return varas_id
+        self._id = mvaras.insert_one({'nr_code': self.nr_code, 'done': self.done, 'state': self.state}).inserted_id
+        return self._id
+
+    def get_url(self):
+        url_begin = "http://esaj.tjsp.jus.br/cjpg/pesquisar.do?conversationId=&dadosConsulta.pesquisaLivre=&tipoNumero=UNIFICADO&numeroDigitoAnoUnificado=&foroNumeroUnificado=&dadosConsulta.nuProcesso=&dadosConsulta.nuProcessoAntigo=&classeTreeSelection.values=&classeTreeSelection.text=&assuntoTreeSelection.values=&assuntoTreeSelection.text=&agenteSelectedEntitiesList=&contadoragente=0&contadorMaioragente=0&cdAgente=&nmAgente=&dadosConsulta.dtInicio=&dadosConsulta.dtFim=&varasTreeSelection.values="
+        url_end = "&varasTreeSelection.text=2+Registros+selecionados&dadosConsulta.ordenacao=DESC"
+    #for var1, var2 in zip(text[0:997], text[997:]):
+        return url_begin + self.nr_code + url_end
 
     @staticmethod
     def all(mvaras):
@@ -48,6 +55,7 @@ class Varas():
         all_varas = []
         for document in cursor:
             v = Varas(document['nr_code'], document['state'], document['done'])
+            v._id = document['_id']
             all_varas.append(v)
         return all_varas 
            
