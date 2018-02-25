@@ -11,7 +11,7 @@ from settings import Settings
 from networking import ProxedHTTPRequester
 import json
 from pymongo import MongoClient
-from model.models import Varas
+from model.models import Varas, Mongo
 
 
 if __name__ == "__main__":
@@ -20,11 +20,9 @@ if __name__ == "__main__":
         text = handle.readlines()
     text = text[0].split(",")
     print(len(text))
-    client = MongoClient('mongodb://localhost:27017/')
-    db = client.process_database
-    mvaras = db.varas
+    m = Mongo() 
     for var1 in text:
         v = Varas(var1)
-        varas_id = v.insert(mvaras)
+        varas_id = v.insert(m.get_varas())
         print(varas_id)
          

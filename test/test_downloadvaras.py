@@ -11,7 +11,7 @@ from settings import Settings
 from networking import ProxedHTTPRequester
 import json
 from pymongo import MongoClient
-from model.models import Varas
+from model.models import Varas, Mongo
 
 def number_of_results(div_resultaos):
     table = div_resultaos.find('table')
@@ -38,27 +38,28 @@ def jdefault(o):
             return o.__dict__ 
 
 if __name__ == "__main__":
-    varas = Varas.all() 
     session = ProxedHTTPRequester()
     settings = Settings()
-    client = MongoClient('mongodb://localhost:27017/')
-    db = client.process_database
-    mprocesses = db.processes
+    mongo = Mongo()
+    varas = Varas.all(mongo.get_varas()) 
     ex = ScrapyNrProcess(session, settings.createLogFile("log_extracted_numbers__varas_"))
     for var1 in varas:
-        response = session.get(var1.get_url())
-        if response.status_code == req.codes.ok:
-            print("Deu certo")
-            page = BeautifulSoup(response.content, "html.parser")
-            resultados = page.find('div', {'id': 'resultados'})
-            if resultados is not None:
-                nr_results = number_of_results(resultados)
-                all_processes = []
-                for x in range(1, nr_results):
-                    all_processes = all_processes + ex.download_page(x)
+        if var1.done is not True:
+            print(var1.nr_code)
+            response = session.get(var1.get_url())
+            if response.status_code == req.codes.ok:
+                print("Deu certo")
+                page = BeautifulSoup(response.content, "html.parser")
+                resultados = page.find('div', {'id': 'resultados'})
+                if resultados is not None:
+                    nr_results = number_of_results(resultados)
+                    all_processes = []
+                    for x in range(1, nr_results):
+                        all_processes = all_processes + ex.download_page(x)
 
-                for p in all_processes: 
-                    processes_id = mprocesses.insert_one(p.__dict__).inserted_id
-                    print(processes_id)
-                 
-                
+                    for p in all_processes: 
+                        processes_id = mongo.get_processes().insert_one(p.__dict__).inserted_id
+                        print(processes_id)
+                     
+                    var1.done = True
+                    var1.update(mongo.get_varas()) 
