@@ -1,6 +1,6 @@
 import unittest
 from model import models
-
+import pymongo
 class TestProcesses(unittest.TestCase):
 
     def setUp(self):
@@ -9,7 +9,7 @@ class TestProcesses(unittest.TestCase):
     def test_aggregation(self):
         result = self.mongo.get_processes().aggregate([{"$group": {"_id": "$assunto", "total": { "$sum": 1}}}])
         #result = self.mongo.get_varas().aggregate([{"$group": {"_id": "$done", "count": { "$sum": 1}}}])
-        for d in result:
+        for d in result.sort('total', pymongo.DESCENDING):
             print(d)
         self.assertTrue(True)
 
