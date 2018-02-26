@@ -4,6 +4,7 @@ import logging
 import time
 import platform
 import codecs
+import re
 from settings import Settings
 from datetime import datetime
 from selenium import webdriver
@@ -13,6 +14,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import requests as req
 from bs4 import BeautifulSoup
+from model.models import Process
 
 class ScrapySentence(object):
 
@@ -110,22 +112,54 @@ class ScrapyNrProcess:
         self.session = session
         self.logger = logging
 
-    def extrai_numero_processo(self, response):
+    def extract_link(self, table):
+        link_tag = table.find("a")
+        if link_tag is not None:
+            return link_tag['name']
+        else:
+            return ""
+
+    def read_table(self, element):
+        data = []
+        link = ''
+        table = element.find('table')
+        # table_body = table.find('tbody')
+        if table is not None:
+            link = self.extract_link(table)
+            rows = table.find_all('tr')
+            for row in rows:
+                cols = row.find_all('td')
+                cols = [ele.text.strip() for ele in cols]
+                data.append([ele for ele in cols if ele])
+        return  data, link
+
+    def extract_process_object(self, data):
+        p = Process()
+        for i, info in enumerate(data, 0):
+            info = info[0] if len(info) == 1 else info
+            if i == 0 or i == 8:
+                p.set(i,info)
+            else:
+                p.set(i, info.split("\n")[1].replace('\t', ''))
+
+        return p
+
+    def extract_process(self, response):
         page = BeautifulSoup(response.content, "html.parser")
         div = page.find("div", {"id": "divDadosResultado"})
         if div is None:
             self.logger.info("Nao encontrou a div de dados")
-            return set()
+            return []
 
-        link_tag = div.find_all("a")
-        if link_tag is None:
-            self.logger.info("Não encontrou links")
-            return set()
-        processes = set()
-        for link in link_tag:
-            processes.add(link["name"])
-        #self.logger.info("nr_processes %s", str(len(processes)))
+        trs = div.find_all("tr", {'class':'fundocinza1'})
+        processes = []
+        for tr in trs:
+            data_, link = self.read_table(tr)
+            p = self.extract_process_object(data_)
+            p.set(9, link)
+            processes.append(p)
         return processes
+
 
 
     def download_page(self, page):
@@ -133,7 +167,7 @@ class ScrapyNrProcess:
             self.logger.info("Pagina %s", str(page))
             response = self.session.get(url_t)
             if response.status_code == req.codes.ok:
-                return self.extrai_numero_processo(response)
+                return self.extract_process(response)
             else:
                 self.logger.info("A url nao pode ser encontrada: %s", str(url_t))
-                return set()
+                return []
