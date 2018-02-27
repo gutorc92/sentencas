@@ -42,6 +42,7 @@ if __name__ == "__main__":
     settings = Settings()
     mongo = Mongo()
     varas = Varas.all(mongo.get_varas()) 
+    dir_ = os.path.dirname(os.path.abspath(__file__))
     ex = ScrapyNrProcess(session, settings.createLogFile("log_extracted_numbers__varas_"))
     for var1 in varas:
         if var1.done is not True:
@@ -57,9 +58,13 @@ if __name__ == "__main__":
                     for x in range(1, nr_results):
                         all_processes = all_processes + ex.download_page(x)
 
-                    for p in all_processes: 
-                        processes_id = mongo.get_processes().insert_one(p.__dict__).inserted_id
-                        print(processes_id)
+                    serialized = json.dumps(all_processes, indent=4, default=jdefault,ensure_ascii=False )
+                    file_name = "output_" + var.nr_code + ".json"
+                    with codecs.open(os.path.join(dir_, file_name), "w", "utf-8") as handle:
+                        handle.write(serialized)
+                    #for p in all_processes: 
+                        #processes_id = mongo.get_processes().insert_one(p.__dict__).inserted_id
+                        #print(processes_id)
                      
                     var1.done = True
                     var1.update(mongo.get_varas()) 
