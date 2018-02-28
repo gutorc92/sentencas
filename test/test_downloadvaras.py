@@ -59,7 +59,7 @@ if __name__ == "__main__":
                         all_processes = all_processes + ex.download_page(x)
 
                     serialized = json.dumps(all_processes, indent=4, default=jdefault,ensure_ascii=False )
-                    file_name = "output_" + var.nr_code + ".json"
+                    file_name = "output_" + var1.nr_code + ".json"
                     with codecs.open(os.path.join(dir_, file_name), "w", "utf-8") as handle:
                         handle.write(serialized)
                     #for p in all_processes: 

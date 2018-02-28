@@ -86,10 +86,9 @@ class _TaskManager(metaclass=Singleton):
             self.start_tor()
 
     def start_tor(self):
-        # TODO: extend for UNIX
         prog = "tor.exe" if platform.system() == "Windows" else "tor"
         self.__tor = subprocess.Popen(
-            [prog, "-f", os.path.join(self.dir_,"thirdpartsprocs", "Tor","Data",  "Tor", "torrc")], shell=True, cwd=os.path.join(self.dir_,"thirdpartsprocs", "Tor")
+            [prog, "-f", os.path.join(self.dir_,"thirdpartsprocs", "Tor","Data",  "Tor", "torrc")], shell=True
         )
 
     def init_privoxy(self):
@@ -97,10 +96,9 @@ class _TaskManager(metaclass=Singleton):
             self.start_privoxy()
 
     def start_privoxy(self):
-        # TODO: extend for UNIX
         prog = "privoxy.exe" if platform.system() == "Windows" else "privoxy"
         self.__privoxy = subprocess.Popen(
-            [prog], cwd=os.path.join(self.dir_,"thirdpartsprocs","privoxy-3.0.26"), shell=True
+            [prog], shell=True
         )
 
     def end_tor(self):

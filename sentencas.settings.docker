@@ -1,0 +1,2 @@
+path: /etc/dados
+mongo: mongodb://gutorc92:gabriel12#!18@processos-shard-00-00-ffc9n.mongodb.net:27017,processos-shard-00-01-ffc9n.mongodb.net:27017,processos-shard-00-02-ffc9n.mongodb.net:27017/test?ssl=true&replicaSet=Processos-shard-0&authSource=admin

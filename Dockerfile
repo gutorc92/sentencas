@@ -161,12 +161,22 @@ RUN apk add linux-headers
 
 RUN apk add libffi-dev
 
-CMD mkdir /var/sentencas
+RUN mkdir /var/sentencas
 
-COPY ./* /var/sentencas/
+RUN mkdir /etc/dados
+RUN mkdir /etc/dados/numero_processos
+RUN mkdir /etc/dados/estatistica
+RUN mkdir /etc/dados/log
+RUN mkdir /etc/dados/textos
 
-CMD cd /var/sentencas/
+ADD ./ /var/sentencas
 
-CMD pip install -r requirements.txt
+RUN cd /var/sentencas/
+
+RUN pip install -r /var/sentencas/requi.txt
+
+COPY ./sentencas.settings.docker /var/sentencas/setencas.settings
+
+ENV PYTHONPATH /var/sentencas/
 
 #ENTRYPOINT ["python", "test/test_downloadvaras.py"]
