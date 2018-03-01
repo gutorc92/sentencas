@@ -24,7 +24,8 @@ if __name__ == "__main__":
     files_names = [f for f in files_names if f.endswith(".json")]
     assuntos = {}
     for file_name in files_names:
-        with codecs.open(os.path.join(dir_,"output.json"), "r","utf-8") as handle:
+        print("Processing", file_name)
+        with codecs.open(os.path.join(dir_,file_name), "r","utf-8") as handle:
             text = handle.read()
         x = json.loads(text, object_hook=lambda d: create_process(d.keys(), d.values()))
         for p in x:
@@ -35,5 +36,6 @@ if __name__ == "__main__":
                 assuntos[assunto] = 1
 
     for k, v in sorted(assuntos.items(), key=lambda x: x[1], reverse=True):
-        print(k, v)
+        if v > 300:
+            print(k, v)
 

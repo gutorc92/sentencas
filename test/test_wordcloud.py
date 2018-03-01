@@ -19,10 +19,12 @@ import re
 import codecs
 from settings import Settings
 import pandas as pd
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 from wordcloud import WordCloud
-import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
 from sklearn.datasets import load_files
 
@@ -48,14 +50,16 @@ if __name__ == "__main__":
     l_docs = []
     l_files = []
     for file_name in files_names:
-        with codecs.open(os.path.join(dir_,"output.json"), "r","utf-8") as handle:
+        with codecs.open(os.path.join(dir_,file_name), "r","utf-8") as handle:
             text = handle.read()
         x = json.loads(text, object_hook=lambda d: create_process(d.keys(), d.values()))
         for p in x:
-            if p.assunto == "Dívida Ativa":
+            #print(p.assunto)
+            if p.assunto == " Cheque":
                 l_docs.append(p.abstract)
                 l_files.append(p.npu_process)
 
+    print(len(l_docs), len(l_files))
     result = tdm(l_docs, l_files)
     print(result.shape)
     word_count = result.sum(1)
@@ -63,4 +67,4 @@ if __name__ == "__main__":
     word_count2 = word_count / total_words
     wc = WordCloud(background_color="white", max_words=2000)
     wc.generate_from_frequencies(word_count2.to_dict())
-    wc.to_file(dir_)
+    wc.to_file(os.path.join(dir_, "teste.jpg"))
