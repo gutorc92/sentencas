@@ -135,12 +135,17 @@ class ScrapyNrProcess:
 
     def extract_process_object(self, data):
         p = Process()
+        len_data = len(data)
         for i, info in enumerate(data, 0):
             info = info[0] if len(info) == 1 else info
-            if i == 0 or i == 8:
-                p.set(i,info)
+            if len_data  == 8 and i > 0:
+                aux = i + 1
             else:
-                p.set(i, info.split("\n")[1].replace('\t', ''))
+                aux = i
+            if aux == 0 or aux == 8:
+                p.set(aux,info)
+            else:
+                p.set(aux, info.split("\n")[1].replace('\t', ''))
 
         return p
 
