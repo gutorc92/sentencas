@@ -66,8 +66,7 @@ def getting_data():
     return l_docs, l_files, l_target
 
 if __name__ == "__main__":
-    
-    l_docs, l_files, l_target = getting_data()
+    l_docs, l_target = getting_data()
     l_target_en = target_encode(l_target)
     X_train, X_test, y_train, y_test = train_test_split(l_docs, l_target_en, test_size=0.33, random_state=42)
     print(len(l_docs), len(l_files))
