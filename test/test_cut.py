@@ -33,11 +33,6 @@ from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 
-def get_stop_words():
-    stop_words_direito = ['impressao','artigo','direita', 'processo','sentenca','documento','digitalmente','direito', 'juiz','nao','autos','lauda','margem']
-    stop_words_direito = stop_words_direito + stopwords.words("portuguese")
-    return stop_words_direito
-
 def target_encode(l_target):
     le = preprocessing.LabelEncoder()
     le.fit(np.unique(l_target))
@@ -71,13 +66,14 @@ def getting_data():
     l_docs = []
     l_target = []
     i = 0
+    cut = 1500
     for k, v in sorted(assuntos.items(), key=lambda x: x[0][0], reverse=True):
-        if v['valor'] > 600:
+        if v['valor'] > cut:
             i += 1
-            l_docs = l_docs + v['list_docs']
-            l_target = l_target + v['list_target']
-            print(k, v['valor'])
+            l_docs = l_docs + v['list_docs'][0:cut]
+            l_target = l_target + v['list_target'][0:cut]
     print(i)
+    print(len(l_docs), len(l_target))
     return l_docs, l_target
 
 if __name__ == "__main__":
