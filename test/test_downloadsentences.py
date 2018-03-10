@@ -10,21 +10,10 @@ from download_numero_processos import Extract_Numbers
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
 from selenium import webdriver
-if platform.system() == "Windows":
-    import win32com.client as win32
-from traceback import print_exc
-import time
-import random
-import re
-import codecs
-from networking import ProxedHTTPRequester
-import codecs
-import re
-from urlstjsp import *
-
+from test.test_cut import get_files, get_processes
 
 def os_path(file_win, file_linux):
-    setencas_dir = os.path.dirname(os.path.realpath(__file__))
+    setencas_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
     if platform.system() == "Linux":
         path_file = os.path.join(setencas_dir, file_linux)
     else:
@@ -57,7 +46,11 @@ def numberoftest():
 if __name__ == "__main__":
     try:
         driver  = create_driver() 
-        d = DownloadSetence(driver, numberoftest(), debug=True)
-        d.download_pdf_sentences_test()
+        file_names = get_files()
+        for file_name in file_names:
+            processes = get_processes(file_name)
+            print(len(processes))
+            d = DownloadSetence(driver,None)
+            d.download_pdfs(processes)
     finally:
         driver.close()

@@ -1,50 +1,31 @@
 # -*- coding: utf-8 -*-
 import os
-import codecs
-import sys
-import platform
-import re
-import requests as req
-from bs4 import BeautifulSoup
-from pages.scrapypage import ScrapyNrProcess
-from settings import Settings
-from networking import ProxedHTTPRequester
 import json
-from collections import namedtuple
-from model.models import Process, create_process
-import pymongo
-from pymongo import MongoClient
-import os
-import re
 import codecs
-from settings import Settings
-import pandas as pd
-import matplotlib
-matplotlib.use('agg')
-import matplotlib.pyplot as plt
-from sklearn.feature_extraction.text import CountVectorizer
-import numpy as np
-from wordcloud import WordCloud
-from nltk.corpus import stopwords
-from sklearn.datasets import load_files
-from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn import preprocessing
-from sklearn.model_selection import train_test_split
-from sklearn import metrics
-
-def target_encode(l_target):
-    le = preprocessing.LabelEncoder()
-    le.fit(np.unique(l_target))
-    return le.transform(l_target)
+from model.models import create_process
 
 def jdefault(o):
             return o.__dict__
 
-def getting_data():
+def get_files():
     dir_ = os.path.dirname(os.path.abspath(__file__))
     files_names = os.listdir(dir_)
     files_names = [f for f in files_names if f.endswith(".json")]
+    return files_names
+
+def get_processes(file_name):
+    dir_ = os.path.dirname(os.path.abspath(__file__))
+    processes = []
+    print(file_name)
+    with codecs.open(os.path.join(dir_,file_name), "r","utf-8") as handle:
+        text = handle.read()
+        x = json.loads(text, object_hook=lambda d: create_process(d.keys(), d.values()))
+        for p in x:
+            processes.append(p)
+    return processes
+
+def getting_data():
+    files_names = get_files() 
     assuntos = {}
     for file_name in files_names:
         print(file_name)
@@ -76,5 +57,18 @@ def getting_data():
     print(len(l_docs), len(l_target))
     return l_docs, l_target
 
+def count_data():
+    dir_ = os.path.dirname(os.path.abspath(__file__))
+    files_names = get_files() 
+    total = 0
+    for file_name in files_names:
+        print(file_name)
+        with codecs.open(os.path.join(dir_,file_name), "r","utf-8") as handle:
+            text = handle.read()
+        x = json.loads(text, object_hook=lambda d: create_process(d.keys(), d.values()))
+        total = total + len(x)
+    return total
+
 if __name__ == "__main__":
-    getting_data() 
+    print(count_data())
+    

@@ -89,6 +89,18 @@ class DownloadSetence(object):
         finally:
             dados.close()
 
+    def download_pdfs(self, processes):
+        dados = None
+        try:
+            dados = open(self.create_estatisca_file(), "w")
+            for p in processes:
+                print(p.npu_process)
+                if not os.path.exists(self.s.join("numero_processos", self.file_name(p.nr_sp))):
+                    self.download_processo(self.driver, p.nr_sp, dados)
+        except Exception as e:
+            self.logger.exception("Main loop brokes with exception")
+        finally:
+            dados.close()
 
     def download_pdf_sentences_test(self):
         dados = None
