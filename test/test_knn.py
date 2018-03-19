@@ -44,7 +44,10 @@ if __name__ == "__main__":
     clf = KNeighborsClassifier().fit(X_train_tfidf, y_train)
     X_test_tfidf = tfidf_transformer.fit_transform(X_test)
     predicted = clf.predict(X_test_tfidf)
-    print(metrics.classification_report(y_test, predicted, target_names=np.unique(l_target)))
+    r = metrics.classification_report(y_test, predicted, target_names=np.unique(l_target))
+    with codecs.open(os.path.join(dir_, "..", "resultados", "report_knn.txt"), "w", "utf-8") as handle:
+        handle.write(r)
+    print(r)
     cnf_matrix = confusion_matrix(y_test, predicted)
     np.save(os.path.join(dir_, "confusion_matrix_knn"), cnf_matrix)
     np.save(os.path.join(dir_, "l_target_knn"), l_target)
