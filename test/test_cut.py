@@ -24,12 +24,33 @@ def get_processes(file_name):
             processes.append(p)
     return processes
 
+def getting_data_subject(attr = 'assunto'):
+    files_names = get_files()
+    agrouped = {}
+    for file_name in files_names:
+        print(file_name)
+        with codecs.open(file_name, "r","utf-8") as handle:
+            processes = json.loads(handle.read(), object_hook=lambda d: create_process(d.keys(), d.values()))
+            for p in processes:
+                if hasattr(p, attr):
+                    group = getattr(p, attr)
+                    if group in agrouped:
+                        agrouped[group]['valor'] += 1
+                        agrouped[group]['list_docs'].append(p.abstract)
+                        agrouped[group]['list_target'].append(group)
+                    else:
+                        agrouped[group] = {}
+                        agrouped[group]['valor'] = 1
+                        agrouped[group]['list_docs'] = [p.abstract]
+                        agrouped[group]['list_target'] = [group]
+    return agrouped
+
 def getting_data():
     files_names = get_files() 
     assuntos = {}
     for file_name in files_names:
         print(file_name)
-        with codecs.open(os.path.join(file_name), "r","utf-8") as handle:
+        with codecs.open(file_name, "r","utf-8") as handle:
             text = handle.read()
         x = json.loads(text, object_hook=lambda d: create_process(d.keys(), d.values()))
         for p in x:
