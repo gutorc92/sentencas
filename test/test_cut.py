@@ -10,7 +10,7 @@ def jdefault(o):
 def get_files():
     dir_ = os.path.dirname(os.path.abspath(__file__))
     files_names = os.listdir(dir_)
-    files_names = [f for f in files_names if f.endswith(".json")]
+    files_names = [os.path.join(dir_, f) for f in files_names if f.endswith(".json")]
     return files_names
 
 def get_processes(file_name):
@@ -29,7 +29,7 @@ def getting_data():
     assuntos = {}
     for file_name in files_names:
         print(file_name)
-        with codecs.open(os.path.join(dir_,file_name), "r","utf-8") as handle:
+        with codecs.open(os.path.join(file_name), "r","utf-8") as handle:
             text = handle.read()
         x = json.loads(text, object_hook=lambda d: create_process(d.keys(), d.values()))
         for p in x:
