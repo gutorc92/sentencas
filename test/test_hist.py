@@ -33,19 +33,15 @@ def plot_subject_distribution(cm, classes,
 if __name__ == "__main__":
     s = Settings()
     size = 11
-    assuntos = getting_data_subject('classe_process')
+    assuntos = getting_data_subject()
     keys = []
     values = []
     for k, v in assuntos.items():
-        if v['valor'] < 20000 and v['valor'] > 45:
+        if v['valor'] < 2000:
             keys.append(k)
             values.append(v['valor'])
     print(len(keys), len(values))
-    classes = np.array([c for c in keys])
-    plt.figure(figsize=(size, size))
-    tick_marks = np.arange(len(classes))
-    plt.scatter(tick_marks, values)
-    plt.xticks(tick_marks, classes, rotation=90)
+    plt.hist(values, bins=20, range=(0,2000))
     plt.ylabel('Quantidade')
     plt.xlabel('Classe')
     plt.show()

@@ -43,6 +43,19 @@ def getting_data_subject(attr = 'assunto'):
                         agrouped[group]['valor'] = 1
                         agrouped[group]['list_docs'] = [p.abstract]
                         agrouped[group]['list_target'] = [group]
+    keys_to_delete = [] 
+    for k, v in agrouped.items():
+        try:
+            if v is None:
+                print(k)
+                keys_to_delete.append(k)
+            if 'valor' not in v:
+                print(k)
+                keys_to_delete.append(k)
+        except:
+            keys_to_delete.append(k)
+    for key in keys_to_delete:
+        del agrouped[key]
     return agrouped
 
 def getting_data():
