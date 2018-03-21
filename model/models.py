@@ -87,11 +87,12 @@ class Mongo():
         return self.db.varas
 class Varas():
 
-    def __init__(self, nr_code, state = None, done = None):
+    def __init__(self, nr_code, state = None, done = None, qtde=None):
         self.nr_code = nr_code
         self.state = 'SP' if state is None else state
         self.done = False if done is None else done
         self._id = None
+        self.qtde = 1 if qtde is None else qtde
 
 
     def __str__(self):
@@ -99,9 +100,9 @@ class Varas():
 
     def get_dict(self, full=False):
         if full is False:
-            return {'nr_code': self.nr_code, 'done': self.done, 'state': self.state}
+            return {'nr_code': self.nr_code, 'done': self.done, 'state': self.state, 'qtde': self.qtde}
         else:
-            return {'_id': self._id, 'nr_code': self.nr_code, 'done': self.done, 'state': self.state}
+            return {'_id': self._id, 'nr_code': self.nr_code, 'done': self.done, 'state': self.state, 'qtde': self.qtde}
 
     def insert(self, mvaras):
         self._id = mvaras.insert_one(self.get_dict()).inserted_id
@@ -125,9 +126,7 @@ class Varas():
             v = Varas(document['nr_code'], document['state'], document['done'])
             v._id = document['_id']
             all_varas.append(v)
-        return all_varas 
-           
-        
+        return all_varas
 
 def create_process(key, values):
     p = Process()
