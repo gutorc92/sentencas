@@ -1,6 +1,7 @@
 import json
 from pymongo import MongoClient
 from settings import Settings
+import pymongo
 
 class Process(json.JSONEncoder):
 
@@ -96,7 +97,7 @@ class Varas():
 
 
     def __str__(self):
-        return "%s, %s, %s" % (self.nr_code, self.state, self.done)
+        return "%s, %s, %s %s" % (self.nr_code, self.state, self.done, self.qtde)
 
     def get_dict(self, full=False):
         if full is False:
@@ -120,10 +121,13 @@ class Varas():
 
     @staticmethod
     def all(mvaras):
-        cursor = mvaras.find({})
+        cursor = mvaras.find({'done': False}).sort([("qtde", pymongo.ASCENDING)])
         all_varas = []
         for document in cursor:
-            v = Varas(document['nr_code'], document['state'], document['done'])
+            qtde = None
+            if 'qtde' in document:
+                qtde = document['qtde']
+            v = Varas(document['nr_code'], document['state'], document['done'], qtde)
             v._id = document['_id']
             all_varas.append(v)
         return all_varas

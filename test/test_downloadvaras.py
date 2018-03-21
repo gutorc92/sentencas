@@ -43,31 +43,20 @@ if __name__ == "__main__":
     settings = Settings()
     mongo = Mongo()
     varas = Varas.all(mongo.get_varas()) 
-    dir_ = os.path.dirname(os.path.abspath(__file__))
     ex = ScrapyNrProcess(session, settings.createLogFile("log_extracted_numbers__varas_"))
     for var1 in varas:
-        if var1.done is not True:
-            print(var1.nr_code)
-            response = session.get(var1.get_url())
-            if response.status_code == req.codes.ok:
-                print("Deu certo")
-                page = BeautifulSoup(response.content, "html.parser")
-                resultados = page.find('div', {'id': 'resultados'})
-                if resultados is not None:
-                    nr_results = number_of_results(resultados)
-                    #nr_results = 3
-                    all_processes = []
-                    for x in range(1, nr_results):
-                        all_processes = all_processes + ex.download_page(x)
+        print(var1.nr_code)
+        response = session.get(var1.get_url())
+        if response.status_code == req.codes.ok:
+            print("Deu certo")
+            for x in range(1, var1.qtde):
+                all_processes = all_processes + ex.download_page(x)
 
-                    serialized = json.dumps(all_processes, indent=4, default=jdefault,ensure_ascii=False )
-                    dir_path = settings.join('jsons')
-                    file_name = "output_" + var1.nr_code + ".json"
-                    with codecs.open(os.path.join(dir_path, file_name), "w", "utf-8") as handle:
-                        handle.write(serialized)
-                    upload_file(dir_path, file_name)
-                    #for p in all_processes: 
-                        #processes_id = mongo.get_processes().insert_one(p.__dict__).inserted_id
-                        #print(processes_id)
-                    var1.done = True
-                    var1.update(mongo.get_varas()) 
+            serialized = json.dumps(all_processes, indent=4, default=jdefault,ensure_ascii=False )
+            dir_path = settings.join('jsons')
+            file_name = "output_" + var1.nr_code + ".json"
+            with codecs.open(os.path.join(dir_path, file_name), "w", "utf-8") as handle:
+                handle.write(serialized)
+            upload_file(dir_path, file_name)
+            var1.done = True
+            var1.update(mongo.get_varas())
