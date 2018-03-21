@@ -39,12 +39,16 @@ def jdefault(o):
             return o.__dict__ 
 
 if __name__ == "__main__":
-    session = ProxedHTTPRequester()
+
+    stop = True
+
     settings = Settings()
-    mongo = Mongo()
-    varas = Varas.all(mongo.get_varas()) 
-    ex = ScrapyNrProcess(session, settings.createLogFile("log_extracted_numbers__varas_"))
-    for var1 in varas:
+    while stop:
+        mongo = Mongo()
+        session = ProxedHTTPRequester()
+        ex = ScrapyNrProcess(session, settings.createLogFile("log_extracted_numbers__varas_"))
+        var1 = Varas.first_of(mongo.get_varas())
+        stop = False if var1 is None else True
         print(var1.nr_code)
         response = session.get(var1.get_url())
         if response.status_code == req.codes.ok:
@@ -52,7 +56,6 @@ if __name__ == "__main__":
             all_processes = []
             for x in range(1, var1.qtde):
                 all_processes = all_processes + ex.download_page(x)
-
             serialized = json.dumps(all_processes, indent=4, default=jdefault,ensure_ascii=False )
             dir_path = settings.join('jsons')
             file_name = "output_" + var1.nr_code + ".json"

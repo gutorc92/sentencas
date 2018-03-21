@@ -16,7 +16,8 @@ from model.models import Varas, Mongo
 
 if __name__ == "__main__":
     m = Mongo()
-    all_v = Varas.all(m.get_varas()) 
+    all_v = Varas.all(m.get_varas())
+    print("quandidade de varas restantes", len(all_v))
     for v in all_v:
         print(v)
 

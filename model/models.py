@@ -132,6 +132,21 @@ class Varas():
             all_varas.append(v)
         return all_varas
 
+    @staticmethod
+    def first_of(mvaras):
+        cursor = mvaras.find({'done': False}).sort([("qtde", pymongo.ASCENDING)])
+        all_varas = []
+        for document in cursor:
+            qtde = None
+            if 'qtde' in document:
+                qtde = document['qtde']
+            v = Varas(document['nr_code'], document['state'], document['done'], qtde)
+            v._id = document['_id']
+            all_varas.append(v)
+        if len(all_varas) == 0:
+            return None
+        return all_varas[0]
+
 def create_process(key, values):
     p = Process()
     for k, v in zip(key, values):
