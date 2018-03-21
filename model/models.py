@@ -77,16 +77,14 @@ class Mongo():
 
     def __init__(self):
         settings = Settings()
-        print(settings.mongo)
         self.client = MongoClient(settings.mongo)
         self.db = self.client.process_database
 
     def get_processes(self):
-        return self.db.processes        
+        return self.db.processes 
 
     def get_varas(self):
         return self.db.varas
-    
 class Varas():
 
     def __init__(self, nr_code, state = None, done = None):
