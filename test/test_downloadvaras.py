@@ -49,6 +49,7 @@ if __name__ == "__main__":
         response = session.get(var1.get_url())
         if response.status_code == req.codes.ok:
             print("Deu certo")
+            all_processes = []
             for x in range(1, var1.qtde):
                 all_processes = all_processes + ex.download_page(x)
 
