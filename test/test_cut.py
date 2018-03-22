@@ -3,12 +3,13 @@ import os
 import json
 import codecs
 from model.models import create_process
-
+from settings import Settings
 def jdefault(o):
             return o.__dict__
 
 def get_files():
-    dir_ = os.path.dirname(os.path.abspath(__file__))
+    s = Settings()
+    dir_ = s.join('jsons')
     files_names = os.listdir(dir_)
     files_names = [os.path.join(dir_, f) for f in files_names if f.endswith(".json")]
     return files_names
