@@ -82,7 +82,7 @@ def getting_data():
     l_docs = []
     l_target = []
     i = 0
-    cut = 1500
+    cut = 500
     for k, v in sorted(assuntos.items(), key=lambda x: x[0][0], reverse=True):
         if v['valor'] > cut:
             i += 1

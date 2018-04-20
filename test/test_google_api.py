@@ -5,14 +5,14 @@ import codecs
 from model.models import create_process
 
 import httplib2
-import os
+import io
 
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 from settings import Settings
-from apiclient.http import MediaFileUpload
+from apiclient.http import MediaFileUpload, MediaIoBaseDownload
 
 try:
     import argparse
@@ -72,6 +72,19 @@ def upload_file(dir_file, file_name):
 
     print('File ID: %s' % file.get('id'))
 
+def download_file():
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('drive', 'v3', http=http)
+    file_id = '19kJF67QmUwh6DP4Z0rBaDGyfm6OBSitC'
+    request = service.files().get_media(fileId=file_id)
+    fh = io.BytesIO()
+    downloader = MediaIoBaseDownload(fh, request)
+    done = False
+    while done is False:
+        status, done = downloader.next_chunk()
+        print("Download %d%%." % int(status.progress() * 100))
+
 def main():
     """Shows basic usage of the Google Drive API.
 
@@ -82,7 +95,7 @@ def main():
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('drive', 'v3', http=http)
 
-    results = service.files().list(q="mimeType = 'application/vnd.google-apps.folder' and name = 'files'", fields="nextPageToken, files(id, name)").execute()
+    results = service.files().list(q="name = 'TCC'", fields="nextPageToken, files(id, name)").execute()
     print(results)
     items = results.get('files', [])
     if not items:
@@ -94,5 +107,7 @@ def main():
 
 
 if __name__ == '__main__':
-    dir_ = os.path.dirname(os.path.abspath(__file__))
-    upload_file(dir_, "varas.txt")
+    #dir_ = os.path.dirname(os.path.abspath(__file__))
+    #upload_file(dir_, "varas.txt")
+    #download_file()
+    main()
