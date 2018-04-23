@@ -59,6 +59,46 @@ def getting_data_subject(attr = 'assunto'):
         del agrouped[key]
     return agrouped
 
+def getting_data_all():
+    files_names = get_files()
+    assuntos = {}
+    for file_name in files_names:
+        print(file_name)
+        with codecs.open(file_name, "r","utf-8") as handle:
+            text = handle.read()
+        x = json.loads(text, object_hook=lambda d: create_process(d.keys(), d.values()))
+        for p in x:
+            #print(p.assunto)
+            assunto = p.assunto.strip()
+            if assunto in assuntos:
+                assuntos[assunto]['valor'] += 1
+                assuntos[assunto]['list_docs'].append(p.abstract)
+                assuntos[assunto]['list_target'].append(assunto)
+            else:
+                assuntos[assunto] = {}
+                assuntos[assunto]['valor'] = 1
+                assuntos[assunto]['list_docs'] = [p.abstract]
+                assuntos[assunto]['list_target'] = [assunto]
+    l_class = []
+    for k, v in sorted(assuntos.items(), key=lambda x: x[0][0], reverse=True):
+        if v['valor'] > 100:
+            l_class.append(k)
+    return  l_class, assuntos
+
+def cut_data(assuntos, cut=100):
+    l_docs = []
+    l_target = []
+    i = 0
+    for k, v in sorted(assuntos.items(), key=lambda x: x[0][0], reverse=True):
+        if v['valor'] > cut:
+            i += 1
+            l_docs = l_docs + v['list_docs'][0:cut]
+            l_target = l_target + v['list_target'][0:cut]
+    print(i)
+    print(len(l_docs), len(l_target))
+    return l_docs, l_target
+
+
 def getting_data():
     files_names = get_files() 
     assuntos = {}

@@ -26,7 +26,10 @@ def plot_roc_curve(fpr_rt_lm, tpr_rt_lm):
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
                           title='Confusion matrix',
-                          cmap=plt.cm.Blues):
+                          cmap=plt.cm.Blues,
+                          algoritm='knn'):
+    size = 10
+    plt.figure(figsize=(size, size))
     """
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
@@ -57,6 +60,7 @@ def plot_confusion_matrix(cm, classes,
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+    plt.savefig(os.path.join(dir_, "..", "figuras", 'resultado_confusion' + algoritm + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
 
 if __name__ == "__main__":
     size = 10
@@ -66,4 +70,4 @@ if __name__ == "__main__":
     plt.figure(figsize=(size, size))
     plot_confusion_matrix(cnf_matrix, classes=np.unique(l_target), normalize=True, 
                       title='Confusion matrix, with normalization')
-    plt.savefig(os.path.join(dir_, "..", "figuras",  'resultado' + datetime.now().strftime("%d%m%Y_%H_%M_%S")+'.png'))
+
