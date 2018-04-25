@@ -94,5 +94,6 @@ def main():
 
 
 if __name__ == '__main__':
-    dir_ = os.path.dirname(os.path.abspath(__file__))
-    upload_file(dir_, "varas.txt")
+    #dir_ = os.path.dirname(os.path.abspath(__file__))
+    #upload_file(dir_, "varas.txt")
+    main()
