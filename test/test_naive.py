@@ -26,6 +26,7 @@ from datetime import datetime
 from scipy import interp
 from itertools import cycle
 from test_figure import plot_confusion_matrix
+s = Settings()
 
 def get_stop_words():
     stop_words_direito = ['impressao','artigo','direita', 'processo','sentenca','documento','digitalmente','direito', 'juiz','nao','autos','lauda','margem']
@@ -37,10 +38,16 @@ def target_encode(l_target):
     le.fit(np.unique(l_target))
     return le.transform(l_target)
 
+def knn_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
+    clf = KNeighborsClassifier().fit(X_train, y_train)
+    predicted = clf.predict(X_test)
+    cnf_matrix = confusion_matrix(y_test, predicted)
+    plot_confusion_matrix(cnf_matrix, classes=np.unique(l_target), normalize=True, 
+                      title='Confusion matrix, with normalization', settings=s)
+
 if __name__ == "__main__":
     l_class, assuntos = getting_data_all()
     for cut in [100, 200, 300]:
-        s = Settings()
         l_docs, l_target = cut_data(assuntos, cut)
         for i, d in enumerate(l_docs):
             if type(d) == list:
@@ -56,22 +63,16 @@ if __name__ == "__main__":
         counts = vectorizer.fit_transform(l_docs)
         tfidf_transformer = TfidfTransformer().fit_transform(counts)
         random_state = np.random.RandomState(0)
-        X_train, X_test, y_train, y_test = train_test_split(tfidf_transformer, y, test_size=0.33, random_state=42)
+        X_train, X_test, y_train, y_test, y_train_, y_test_ = train_test_split(tfidf_transformer, y, l_target_en, test_size=0.33, random_state=42)
         #print(len(X_train), len(X_test), len(y_train), len(y_test))
         #naive
         classifier = OneVsRestClassifier(MultinomialNB())
         y_score = classifier.fit(X_train, y_train).predict_proba(X_test)
-        y = classifier.predict(X_test)
-        cnf_matrix = confusion_matrix(y_test, y)
-        plot_confusion_matrix(cnf_matrix, classes=np.unique(y_score), normalize=True,
-                              title='Confusion matrix, with normalization',algortim='Naive')
         #knn
         knn_classifier = OneVsRestClassifier(KNeighborsClassifier())
         y_score_knn = knn_classifier.fit(X_train, y_train).predict_proba(X_test)
         y_knn = classifier.predict(X_test)
-        cnf_matrix_knn = confusion_matrix(y_test, y_knn)
-        plot_confusion_matrix(cnf_matrix_knn, classes=np.unique(y_score_knn), normalize=True,
-                              title='Confusion matrix, with normalization')
+        knn_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target)
 
         fpr_knn = dict()
         tpr_knn = dict()

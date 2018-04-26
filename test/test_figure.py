@@ -3,6 +3,7 @@ import os
 import re
 import codecs
 from settings import Settings
+import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use('agg')
@@ -23,7 +24,7 @@ def plot_roc_curve(fpr_rt_lm, tpr_rt_lm):
     plt.savefig(s.join("figuras", 'resultado' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
 
 
-def plot_confusion_matrix(cm, classes,
+def plot_confusion_matrix(cm, classes, settings,
                           normalize=False,
                           title='Confusion matrix',
                           cmap=plt.cm.Blues,
@@ -60,7 +61,7 @@ def plot_confusion_matrix(cm, classes,
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-    plt.savefig(os.path.join(dir_, "..", "figuras", 'resultado_confusion' + algoritm + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
+    plt.savefig(settings.join("figuras", 'resultado_confusion' + algoritm + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
 
 if __name__ == "__main__":
     size = 10
