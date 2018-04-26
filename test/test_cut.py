@@ -59,37 +59,45 @@ def getting_data_subject(attr = 'assunto'):
         del agrouped[key]
     return agrouped
 
-def getting_data_all():
+def getting_data_all(cut=300, attr = 'assunto'):
     files_names = get_files()
-    assuntos = {}
+    agrouped = {}
     for file_name in files_names:
         print(file_name)
-        with codecs.open(file_name, "r","utf-8") as handle:
-            text = handle.read()
-        x = json.loads(text, object_hook=lambda d: create_process(d.keys(), d.values()))
-        for p in x:
-            #print(p.assunto)
-            assunto = p.assunto.strip()
-            if assunto in assuntos:
-                assuntos[assunto]['valor'] += 1
-                assuntos[assunto]['list_docs'].append(p.abstract)
-                assuntos[assunto]['list_target'].append(assunto)
-            else:
-                assuntos[assunto] = {}
-                assuntos[assunto]['valor'] = 1
-                assuntos[assunto]['list_docs'] = [p.abstract]
-                assuntos[assunto]['list_target'] = [assunto]
+        with codecs.open(file_name, "r", "utf-8") as handle:
+            processes = json.loads(handle.read(), object_hook=lambda d: create_process(d.keys(), d.values()))
+            for p in processes:
+                if hasattr(p, attr):
+                    group = getattr(p, attr)
+                    if group in agrouped:
+                        agrouped[group]['valor'] += 1
+                        agrouped[group]['list_docs'].append(p.abstract)
+                        agrouped[group]['list_target'].append(group)
+                    else:
+                        agrouped[group] = {}
+                        agrouped[group]['valor'] = 1
+                        agrouped[group]['list_docs'] = [p.abstract]
+                        agrouped[group]['list_target'] = [group]
     l_class = []
-    for k, v in sorted(assuntos.items(), key=lambda x: x[0][0], reverse=True):
-        if v['valor'] > 100:
-            l_class.append(k)
-    return  l_class, assuntos
+    keys_to_delete = []
+    for k, v in agrouped.items():
+        if 'valor' not in v:
+            print('nao tem valor', k)
+        else:
+            if v['valor'] >= cut:
+                l_class.append(k)
+            else:
+                keys_to_delete.append(k)
+
+    for key in keys_to_delete:
+        del agrouped[key]
+    return  l_class, agrouped
 
 def cut_data(assuntos, cut=100):
     l_docs = []
     l_target = []
     i = 0
-    for k, v in sorted(assuntos.items(), key=lambda x: x[0][0], reverse=True):
+    for k, v in assuntos.items():
         if v['valor'] > cut:
             i += 1
             l_docs = l_docs + v['list_docs'][0:cut]

@@ -61,7 +61,7 @@ def plot_confusion_matrix(cm, classes, settings,
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-    plt.savefig(settings.join("figuras", 'resultado_confusion' + algoritm + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
+    plt.savefig(settings.join("figuras", 'resultado_confusion_' + algoritm + "_" + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
 
 if __name__ == "__main__":
     size = 10

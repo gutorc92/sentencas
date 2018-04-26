@@ -10,11 +10,10 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
-from test.test_cut import getting_data_all, cut_data
+from test_cut import getting_data_all, cut_data
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve, auc
-from test.test_figure import plot_roc_curve
 from sklearn.preprocessing import label_binarize
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -25,6 +24,7 @@ from settings import Settings
 from datetime import datetime
 from scipy import interp
 from itertools import cycle
+from sklearn.model_selection import cross_val_score
 from test_figure import plot_confusion_matrix
 s = Settings()
 
@@ -38,15 +38,54 @@ def target_encode(l_target):
     le.fit(np.unique(l_target))
     return le.transform(l_target)
 
+def best_knn(X_train, y_train):
+    plt.figure()
+    # creating odd list of K for KNN
+    myList = list(range(1, 20))
+
+    # subsetting just the odd ones
+    neighbors = list(filter(lambda x: x % 2 != 0, myList))
+
+    # empty list that will hold cv scores
+    cv_scores = []
+
+    # perform 10-fold cross validation
+    for k in neighbors:
+        knn = KNeighborsClassifier(n_neighbors=k)
+        scores = cross_val_score(knn, X_train, y_train, cv=10, scoring='accuracy')
+        cv_scores.append(scores.mean())
+
+    # changing to misclassification error
+    MSE = [1 - x for x in cv_scores]
+
+    # determining best k
+    optimal_k = neighbors[MSE.index(min(MSE))]
+    print("The optimal number of neighbors is %d" % optimal_k)
+
+    # plot misclassification error vs k
+    plt.plot(neighbors, MSE)
+    plt.xlabel('Number of Neighbors K')
+    plt.ylabel('Misclassification Error')
+    plt.savefig(s.join("figuras", 'resultado_roc_curve_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
+    return optimal_k
+
 def knn_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
-    clf = KNeighborsClassifier().fit(X_train, y_train)
+    best_k = best_knn(X_train, y_train)
+    clf = KNeighborsClassifier(best_k).fit(X_train, y_train)
     predicted = clf.predict(X_test)
     cnf_matrix = confusion_matrix(y_test, predicted)
     plot_confusion_matrix(cnf_matrix, classes=np.unique(l_target), normalize=True, 
-                      title='Confusion matrix, with normalization', settings=s)
+                      title='Confusion matrix for Knn, with normalization', settings=s, algoritm='knn')
+
+def naive_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
+    clf = MultinomialNB().fit(X_train, y_train)
+    predicted = clf.predict(X_test)
+    cnf_matrix = confusion_matrix(y_test, predicted)
+    plot_confusion_matrix(cnf_matrix, classes=np.unique(l_target), normalize=True,
+                      title='Confusion matrix for naive, with normalization', settings=s, algoritm='naive')
 
 if __name__ == "__main__":
-    l_class, assuntos = getting_data_all()
+    l_class, assuntos = getting_data_all(300, attr='classe_process')
     for cut in [100, 200, 300]:
         l_docs, l_target = cut_data(assuntos, cut)
         for i, d in enumerate(l_docs):
@@ -73,7 +112,7 @@ if __name__ == "__main__":
         y_score_knn = knn_classifier.fit(X_train, y_train).predict_proba(X_test)
         y_knn = classifier.predict(X_test)
         knn_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target)
-
+        naive_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target)
         fpr_knn = dict()
         tpr_knn = dict()
         roc_auc_knn = dict()
@@ -109,4 +148,4 @@ if __name__ == "__main__":
         plt.ylabel('True Positive Rate')
         plt.title('Receiver operating characteristic example')
         plt.legend(loc="lower right")
-        plt.savefig(s.join("figuras", 'resultado' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
+        plt.savefig(s.join("figuras", 'resultado_roc_curve_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
