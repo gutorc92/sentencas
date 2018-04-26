@@ -76,6 +76,7 @@ def knn_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
     cnf_matrix = confusion_matrix(y_test, predicted)
     plot_confusion_matrix(cnf_matrix, classes=np.unique(l_target), normalize=True, 
                       title='Confusion matrix for Knn, with normalization', settings=s, algoritm='knn')
+    return best_k
 
 def naive_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
     clf = MultinomialNB().fit(X_train, y_train)
@@ -85,8 +86,11 @@ def naive_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
                       title='Confusion matrix for naive, with normalization', settings=s, algoritm='naive')
 
 if __name__ == "__main__":
-    l_class, assuntos = getting_data_all(300, attr='classe_process')
-    for cut in [100, 200, 300]:
+    cut_max = 300
+    step = 100
+    list_cut = list(range(step, cut_max+step, step))
+    l_class, assuntos = getting_data_all(cut_max, attr='classe_process')
+    for cut in list_cut:
         l_docs, l_target = cut_data(assuntos, cut)
         for i, d in enumerate(l_docs):
             if type(d) == list:
@@ -104,15 +108,16 @@ if __name__ == "__main__":
         random_state = np.random.RandomState(0)
         X_train, X_test, y_train, y_test, y_train_, y_test_ = train_test_split(tfidf_transformer, y, l_target_en, test_size=0.33, random_state=42)
         #print(len(X_train), len(X_test), len(y_train), len(y_test))
+        best_k = knn_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target)
+        naive_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target)
         #naive
         classifier = OneVsRestClassifier(MultinomialNB())
         y_score = classifier.fit(X_train, y_train).predict_proba(X_test)
         #knn
-        knn_classifier = OneVsRestClassifier(KNeighborsClassifier())
+        knn_classifier = OneVsRestClassifier(KNeighborsClassifier(best_k))
         y_score_knn = knn_classifier.fit(X_train, y_train).predict_proba(X_test)
         y_knn = classifier.predict(X_test)
-        knn_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target)
-        naive_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target)
+
         fpr_knn = dict()
         tpr_knn = dict()
         roc_auc_knn = dict()
