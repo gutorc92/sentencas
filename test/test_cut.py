@@ -83,6 +83,9 @@ def getting_data_all(cut=300, attr = 'assunto'):
     for k, v in agrouped.items():
         if 'valor' not in v:
             print('nao tem valor', k)
+            keys_to_delete.append(k)
+        elif len(k) < 3:
+            keys_to_delete.append(k)
         else:
             if v['valor'] >= cut:
                 l_class.append(k)

@@ -85,11 +85,18 @@ def naive_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
     plot_confusion_matrix(cnf_matrix, classes=np.unique(l_target), normalize=True,
                       title='Confusion matrix for naive, with normalization', settings=s, algoritm='naive')
 
+def write_classes(l_target_en, l_target):
+    with codecs.open(s.join("lista", 'resultado_lista_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.csv'), 'w',
+                     'utf-8') as handle:
+        for code, classe_str in zip(l_target_en, l_target):
+            handle.write("{}, {}\n".format(str(code), classe_str))
+
 if __name__ == "__main__":
     cut_max = 300
     step = 100
     list_cut = list(range(step, cut_max+step, step))
     l_class, assuntos = getting_data_all(cut_max, attr='classe_process')
+
     for cut in list_cut:
         l_docs, l_target = cut_data(assuntos, cut)
         for i, d in enumerate(l_docs):
@@ -100,6 +107,7 @@ if __name__ == "__main__":
                 print(d)
 
         l_target_en = target_encode(l_target)
+        write_classes(l_target_en, l_target)
         y = label_binarize(l_target_en, classes=np.unique(l_target_en))
         n_classes = y.shape[1]
         vectorizer = CountVectorizer(strip_accents="unicode", max_df =0.8, stop_words=get_stop_words())
