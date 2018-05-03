@@ -44,6 +44,13 @@ def target_encode(l_target):
 if __name__ == "__main__":
     assuntos = getting_data_subject(attr='classe_process')
     l_docs, l_target = cut_data(assuntos, -1)
+    for d in l_docs:
+        if type(d) == list:
+            print(d)
+    for i, d in enumerate(l_docs):
+        if type(d) == list:
+            l_docs[i] = ""
+
     vectorizer = CountVectorizer(strip_accents="unicode", max_df=0.8, stop_words=get_stop_words())
     counts = vectorizer.fit_transform(l_docs)
     tfidf_transformer = TfidfTransformer().fit_transform(counts)
