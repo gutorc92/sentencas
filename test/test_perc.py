@@ -30,12 +30,18 @@ from test_figure import plot_confusion_matrix
 s = Settings()
 
 if __name__ == "__main__":
-    plt.figure()
     assuntos = getting_data_subject(attr='classe_process')
     values = []
+    handle = codecs.open(s.join("lista", 'lista_qtde_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.csv'), 'w',
+                         'utf-8')
     for k, v in assuntos.items():
         if 'valor' in v:
             values.append(v['valor'])
+            line = "%s;%s\n" % (k, str(v['valor']))
+            print(line)
+            handle.write(line)
+    handle.close()
+    plt.figure()
     #d = np.sort(np.random.randint(0, 1000, 1000)).cumsum()
     d = sorted(values)
     print(d)
