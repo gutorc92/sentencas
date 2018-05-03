@@ -110,7 +110,11 @@ def cut_data(assuntos, cut=100):
     l_target = []
     i = 0
     for k, v in assuntos.items():
-        if v['valor'] > cut:
+        if cut <= -1:
+            i += 1
+            l_docs = l_docs + v['list_docs'][0:]
+            l_target = l_target + v['list_target'][0:]
+        elif v['valor'] >= cut:
             i += 1
             l_docs = l_docs + v['list_docs'][0:cut]
             l_target = l_target + v['list_target'][0:cut]

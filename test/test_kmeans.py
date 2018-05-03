@@ -10,7 +10,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
-from test_cut import getting_data_all, cut_data
+from test_cut import getting_data_all, cut_data, getting_data_subject
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve, auc
@@ -42,11 +42,8 @@ def target_encode(l_target):
     return le.transform(l_target)
 
 if __name__ == "__main__":
-    cut_max = 300
-    step = 100
-    list_cut = list(range(step, cut_max+step, step))
-    l_class, assuntos = getting_data_all(cut_max, attr='classe_process')
-    l_docs, l_target = cut_data(assuntos, cut_max)
+    assuntos = getting_data_subject(attr='classe_process')
+    l_docs, l_target = cut_data(assuntos, -1)
     vectorizer = CountVectorizer(strip_accents="unicode", max_df=0.8, stop_words=get_stop_words())
     counts = vectorizer.fit_transform(l_docs)
     tfidf_transformer = TfidfTransformer().fit_transform(counts)
