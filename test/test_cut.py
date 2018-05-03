@@ -31,7 +31,11 @@ def getting_data_subject(attr = 'assunto'):
     for file_name in files_names:
         print(file_name)
         with codecs.open(file_name, "r","utf-8") as handle:
-            processes = json.loads(handle.read(), object_hook=lambda d: create_process(d.keys(), d.values()))
+            try:
+                processes = json.loads(handle.read(), object_hook=lambda d: create_process(d.keys(), d.values()))
+            except:
+                print('file name cannot be read: ', file_name)
+                continue
             for p in processes:
                 if hasattr(p, attr):
                     group = getattr(p, attr)
@@ -59,13 +63,17 @@ def getting_data_subject(attr = 'assunto'):
         del agrouped[key]
     return agrouped
 
-def getting_data_all(cut=300, attr = 'assunto'):
+def getting_data_all(cut=300, attr = 'assunto', del_keys=True):
     files_names = get_files()
     agrouped = {}
     for file_name in files_names:
         print(file_name)
         with codecs.open(file_name, "r", "utf-8") as handle:
-            processes = json.loads(handle.read(), object_hook=lambda d: create_process(d.keys(), d.values()))
+            try:
+                processes = json.loads(handle.read(), object_hook=lambda d: create_process(d.keys(), d.values()))
+            except:
+                print('file name cannot be read: ', file_name)
+                continue
             for p in processes:
                 if hasattr(p, attr):
                     group = getattr(p, attr)
@@ -92,8 +100,9 @@ def getting_data_all(cut=300, attr = 'assunto'):
             else:
                 keys_to_delete.append(k)
 
-    for key in keys_to_delete:
-        del agrouped[key]
+    if del_keys:
+        for key in keys_to_delete:
+            del agrouped[key]
     return  l_class, agrouped
 
 def cut_data(assuntos, cut=100):

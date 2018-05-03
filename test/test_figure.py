@@ -26,10 +26,10 @@ def plot_roc_curve(fpr_rt_lm, tpr_rt_lm):
 
 def plot_confusion_matrix(cm, classes, settings,
                           normalize=False,
-                          title='Confusion matrix',
+                          title='Matriz de confusão',
                           cmap=plt.cm.Blues,
                           algoritm='knn'):
-    size = 10
+    size = 12
     plt.figure(figsize=(size, size))
     """
     This function prints and plots the confusion matrix.

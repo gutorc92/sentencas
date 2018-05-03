@@ -63,10 +63,11 @@ def best_knn(X_train, y_train):
     print("The optimal number of neighbors is %d" % optimal_k)
 
     # plot misclassification error vs k
+    plt.title('Número de K vizinhos por erro de classificação')
     plt.plot(neighbors, MSE)
-    plt.xlabel('Number of Neighbors K')
-    plt.ylabel('Misclassification Error')
-    plt.savefig(s.join("figuras", 'resultado_roc_curve_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
+    plt.xlabel('K vizinho')
+    plt.ylabel('Error de classificação')
+    plt.savefig(s.join("figuras", 'resultado_knn_optimal_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
     return optimal_k
 
 def knn_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
@@ -75,7 +76,7 @@ def knn_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
     predicted = clf.predict(X_test)
     cnf_matrix = confusion_matrix(y_test, predicted)
     plot_confusion_matrix(cnf_matrix, classes=np.unique(l_target), normalize=True, 
-                      title='Confusion matrix for Knn, with normalization', settings=s, algoritm='knn')
+                      title='Matriz de confusão Knn normalizada', settings=s, algoritm='knn')
     return best_k
 
 def naive_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
@@ -83,7 +84,7 @@ def naive_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
     predicted = clf.predict(X_test)
     cnf_matrix = confusion_matrix(y_test, predicted)
     plot_confusion_matrix(cnf_matrix, classes=np.unique(l_target), normalize=True,
-                      title='Confusion matrix for naive, with normalization', settings=s, algoritm='naive')
+                      title='Matriz de confusão Naive Bayses', settings=s, algoritm='naive')
 
 def write_classes(l_target_en, l_target):
     with codecs.open(s.join("lista", 'resultado_lista_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.csv'), 'w',
@@ -95,7 +96,7 @@ if __name__ == "__main__":
     cut_max = 300
     step = 100
     list_cut = list(range(step, cut_max+step, step))
-    l_class, assuntos = getting_data_all(cut_max, attr='classe_process')
+    l_class, assuntos = getting_data_all(cut_max, attr='classe_process', del_key=False)
 
     for cut in list_cut:
         l_docs, l_target = cut_data(assuntos, cut)
@@ -157,8 +158,8 @@ if __name__ == "__main__":
         plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('Receiver operating characteristic example')
+        plt.xlabel('Falso Positivos')
+        plt.ylabel('Verdadeiros Positivos')
+        plt.title('ROC curves')
         plt.legend(loc="lower right")
         plt.savefig(s.join("figuras", 'resultado_roc_curve_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
