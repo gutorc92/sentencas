@@ -96,7 +96,7 @@ if __name__ == "__main__":
     cut_max = 300
     step = 100
     list_cut = list(range(step, cut_max+step, step))
-    l_class, assuntos = getting_data_all(cut_max, attr='classe_process', del_key=False)
+    l_class, assuntos = getting_data_all(cut_max, attr='classe_process', del_keys=False)
 
     for cut in list_cut:
         l_docs, l_target = cut_data(assuntos, cut)
@@ -117,8 +117,8 @@ if __name__ == "__main__":
         random_state = np.random.RandomState(0)
         X_train, X_test, y_train, y_test, y_train_, y_test_ = train_test_split(tfidf_transformer, y, l_target_en, test_size=0.33, random_state=42)
         #print(len(X_train), len(X_test), len(y_train), len(y_test))
-        best_k = knn_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target)
-        naive_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target)
+        best_k = knn_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target_en)
+        naive_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target_en)
         #naive
         classifier = OneVsRestClassifier(MultinomialNB())
         y_score = classifier.fit(X_train, y_train).predict_proba(X_test)
@@ -152,14 +152,14 @@ if __name__ == "__main__":
         plt.figure()
         lw = 2
         plt.plot(fpr[2], tpr[2], color='red',
-                 lw=lw, label='ROC curve naive (area = %0.2f)' % roc_auc[2])
+                 lw=lw, label='Curva ROC Naive (area = %0.2f)' % roc_auc[2])
         plt.plot(fpr_knn[2], tpr_knn[2], color='darkorange',
-                 lw=lw, label='ROC curve knn (area = %0.2f)' % roc_auc_knn[2])
+                 lw=lw, label='Curva ROC Knn (area = %0.2f)' % roc_auc_knn[2])
         plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
         plt.xlabel('Falso Positivos')
         plt.ylabel('Verdadeiros Positivos')
-        plt.title('ROC curves')
+        plt.title('Curvas ROC')
         plt.legend(loc="lower right")
         plt.savefig(s.join("figuras", 'resultado_roc_curve_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
