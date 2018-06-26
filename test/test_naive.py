@@ -38,10 +38,11 @@ def target_encode(l_target):
     le.fit(np.unique(l_target))
     return le.transform(l_target)
 
-def best_knn(X_train, y_train):
+def best_knn(X_train, y_train, cut):
+    print('Best knn for', cut)
     plt.figure()
     # creating odd list of K for KNN
-    myList = list(range(1, 20))
+    myList = list(range(1, 25))
 
     # subsetting just the odd ones
     neighbors = list(filter(lambda x: x % 2 != 0, myList))
@@ -67,37 +68,39 @@ def best_knn(X_train, y_train):
     plt.plot(neighbors, MSE)
     plt.xlabel('K vizinho')
     plt.ylabel('Error de classificação')
-    plt.savefig(s.join("figuras", 'resultado_knn_optimal_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
+    plt.savefig(s.join("figuras", 'resultado_knn_optimal_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '_' + str(cut) +  '.png'))
     return optimal_k
 
-def knn_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
-    best_k = best_knn(X_train, y_train)
+def knn_confusion_matrix(X_train, X_test, y_train, y_test, l_target, cut):
+    best_k = best_knn(X_train, y_train, cut)
+    print('knn for', cut)
     clf = KNeighborsClassifier(best_k).fit(X_train, y_train)
     predicted = clf.predict(X_test)
     cnf_matrix = confusion_matrix(y_test, predicted)
     plot_confusion_matrix(cnf_matrix, classes=np.unique(l_target), normalize=True, 
-                      title='Matriz de confusão Knn normalizada', settings=s, algoritm='knn')
+                      title='Matriz de confusão Knn normalizada', settings=s, algoritm='knn', cut = cut)
     return best_k
 
-def naive_confusion_matrix(X_train, X_test, y_train, y_test, l_target):
+def naive_confusion_matrix(X_train, X_test, y_train, y_test, l_target, cut):
+    print('naive for', cut)
     clf = MultinomialNB().fit(X_train, y_train)
     predicted = clf.predict(X_test)
     cnf_matrix = confusion_matrix(y_test, predicted)
     plot_confusion_matrix(cnf_matrix, classes=np.unique(l_target), normalize=True,
-                      title='Matriz de confusão Naive Bayses', settings=s, algoritm='naive')
+                      title='Matriz de confusão Naive Bayses', settings=s, algoritm='naive', cut = cut)
 
-def write_classes(l_target_en, l_target):
-    with codecs.open(s.join("lista", 'resultado_lista_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.csv'), 'w',
+def write_classes(l_target_en, l_target, cut):
+    with codecs.open(s.join("lista", 'resultado_lista_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '_' + str(cut) + '.csv'), 'w',
                      'utf-8') as handle:
         for code, classe_str in zip(l_target_en, l_target):
             handle.write("{}, {}\n".format(str(code), classe_str))
 
 if __name__ == "__main__":
-    cut_max = 300
-    step = 100
-    list_cut = list(range(step, cut_max+step, step))
-    l_class, assuntos = getting_data_all(cut_max, attr='classe_process', del_keys=False)
-
+    cut_max = 7500
+    step = 500
+    list_cut = list(range(6500, cut_max+step, step))
+    l_class, assuntos = getting_data_all(cut_max, attr='classe_process')
+    print(list_cut)
     for cut in list_cut:
         l_docs, l_target = cut_data(assuntos, cut)
         for i, d in enumerate(l_docs):
@@ -106,9 +109,9 @@ if __name__ == "__main__":
         for d in l_docs:
             if type(d) == list:
                 print(d)
-
+        print('Starting')
         l_target_en = target_encode(l_target)
-        write_classes(l_target_en, l_target)
+        write_classes(l_target_en, l_target, cut)
         y = label_binarize(l_target_en, classes=np.unique(l_target_en))
         n_classes = y.shape[1]
         vectorizer = CountVectorizer(strip_accents="unicode", max_df =0.8, stop_words=get_stop_words())
@@ -117,8 +120,8 @@ if __name__ == "__main__":
         random_state = np.random.RandomState(0)
         X_train, X_test, y_train, y_test, y_train_, y_test_ = train_test_split(tfidf_transformer, y, l_target_en, test_size=0.33, random_state=42)
         #print(len(X_train), len(X_test), len(y_train), len(y_test))
-        best_k = knn_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target_en)
-        naive_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target_en)
+        best_k = knn_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target_en, cut)
+        naive_confusion_matrix(X_train, X_test, y_train_, y_test_, l_target_en, cut)
         #naive
         classifier = OneVsRestClassifier(MultinomialNB())
         y_score = classifier.fit(X_train, y_train).predict_proba(X_test)
@@ -162,4 +165,4 @@ if __name__ == "__main__":
         plt.ylabel('Verdadeiros Positivos')
         plt.title('Curvas ROC')
         plt.legend(loc="lower right")
-        plt.savefig(s.join("figuras", 'resultado_roc_curve_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
+        plt.savefig(s.join("figuras", 'resultado_roc_curve_' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '_' + str(cut) + '.png'))

@@ -28,8 +28,9 @@ def plot_confusion_matrix(cm, classes, settings,
                           normalize=False,
                           title='Matriz de confusão',
                           cmap=plt.cm.Blues,
-                          algoritm='knn'):
-    size = 12
+                          algoritm='knn',
+						  cut=0):
+    size = 16
     plt.figure(figsize=(size, size))
     """
     This function prints and plots the confusion matrix.
@@ -61,7 +62,7 @@ def plot_confusion_matrix(cm, classes, settings,
     plt.tight_layout()
     plt.ylabel('Label verdadeiro')
     plt.xlabel('Label previsto')
-    plt.savefig(settings.join("figuras", 'resultado_confusion_' + algoritm + "_" + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
+    plt.savefig(settings.join("figuras", 'resultado_confusion_' + algoritm + "_" + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '_' + str(cut) + '.png'))
 
 if __name__ == "__main__":
     size = 10
