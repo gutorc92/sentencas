@@ -96,7 +96,7 @@ if __name__ == "__main__":
     cut_max = 300
     step = 100
     list_cut = list(range(step, cut_max+step, step))
-    l_class, assuntos = getting_data_all(cut_max, attr='classe_process', del_key=False)
+    l_class, assuntos = getting_data_all(cut_max, attr='classe_process', del_keys=False)
 
     for cut in list_cut:
         l_docs, l_target = cut_data(assuntos, cut)
