@@ -1,47 +1,36 @@
 # -*- coding: utf-8 -*-
 import os
-import codecs
-import sys
-import platform
-import re
-import requests as req
-from bs4 import BeautifulSoup
-from pages.scrapypage import ScrapyNrProcess
-from settings import Settings
-from networking import ProxedHTTPRequester
-import json
-from collections import namedtuple
-from model.models import Process, create_process
-import pymongo
-from pymongo import MongoClient
-import os
 import re
 import codecs
 from settings import Settings
+import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
-from sklearn.feature_extraction.text import CountVectorizer
-import numpy as np
-from wordcloud import WordCloud
-from nltk.corpus import stopwords
-from sklearn.datasets import load_files
-from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn import preprocessing
-from sklearn.model_selection import train_test_split
-from sklearn import metrics
-from test.test_cut import getting_data
-from sklearn.metrics import confusion_matrix
 import itertools
 from datetime import datetime
 
 
-def plot_confusion_matrix(cm, classes,
+def plot_roc_curve(fpr_rt_lm, tpr_rt_lm):
+    s = Settings()
+    plt.figure(1)
+    plt.plot([0, 1], [0, 1], 'k--')
+    plt.plot(fpr_rt_lm, tpr_rt_lm, label='RT + LR')
+    plt.xlabel('False positive rate')
+    plt.ylabel('True positive rate')
+    plt.title('ROC curve')
+    plt.legend(loc='best')
+    plt.savefig(s.join("figuras", 'resultado' + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
+
+
+def plot_confusion_matrix(cm, classes, settings,
                           normalize=False,
-                          title='Confusion matrix',
-                          cmap=plt.cm.Blues):
+                          title='Matriz de confusão',
+                          cmap=plt.cm.Blues,
+                          algoritm='knn'):
+    size = 12
+    plt.figure(figsize=(size, size))
     """
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
@@ -72,6 +61,7 @@ def plot_confusion_matrix(cm, classes,
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+    plt.savefig(settings.join("figuras", 'resultado_confusion_' + algoritm + "_" + datetime.now().strftime("%d%m%Y_%H_%M_%S") + '.png'))
 
 if __name__ == "__main__":
     size = 10
@@ -81,4 +71,4 @@ if __name__ == "__main__":
     plt.figure(figsize=(size, size))
     plot_confusion_matrix(cnf_matrix, classes=np.unique(l_target), normalize=True, 
                       title='Confusion matrix, with normalization')
-    plt.savefig(os.path.join(dir_, "..", "figuras",  'resultado' + datetime.now().strftime("%d%m%Y_%H_%M_%S")+'.png'))
+

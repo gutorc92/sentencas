@@ -31,7 +31,11 @@ def getting_data_subject(attr = 'assunto'):
     for file_name in files_names:
         print(file_name)
         with codecs.open(file_name, "r","utf-8") as handle:
-            processes = json.loads(handle.read(), object_hook=lambda d: create_process(d.keys(), d.values()))
+            try:
+                processes = json.loads(handle.read(), object_hook=lambda d: create_process(d.keys(), d.values()))
+            except:
+                print('file name cannot be read: ', file_name)
+                continue
             for p in processes:
                 if hasattr(p, attr):
                     group = getattr(p, attr)
@@ -59,6 +63,66 @@ def getting_data_subject(attr = 'assunto'):
         del agrouped[key]
     return agrouped
 
+def getting_data_all(cut=300, attr = 'assunto', del_keys=True):
+    files_names = get_files()
+    agrouped = {}
+    for file_name in files_names:
+        print(file_name)
+        with codecs.open(file_name, "r", "utf-8") as handle:
+            try:
+                processes = json.loads(handle.read(), object_hook=lambda d: create_process(d.keys(), d.values()))
+            except:
+                print('file name cannot be read: ', file_name)
+                continue
+            for p in processes:
+                if hasattr(p, attr):
+                    group = getattr(p, attr)
+                    if group in agrouped:
+                        agrouped[group]['valor'] += 1
+                        agrouped[group]['list_docs'].append(p.abstract)
+                        agrouped[group]['list_target'].append(group)
+                    else:
+                        agrouped[group] = {}
+                        agrouped[group]['valor'] = 1
+                        agrouped[group]['list_docs'] = [p.abstract]
+                        agrouped[group]['list_target'] = [group]
+    l_class = []
+    keys_to_delete = []
+    for k, v in agrouped.items():
+        if 'valor' not in v:
+            print('nao tem valor', k)
+            keys_to_delete.append(k)
+        elif len(k) < 3:
+            keys_to_delete.append(k)
+        else:
+            if v['valor'] >= cut:
+                l_class.append(k)
+            else:
+                keys_to_delete.append(k)
+
+    if del_keys:
+        for key in keys_to_delete:
+            del agrouped[key]
+    return  l_class, agrouped
+
+def cut_data(assuntos, cut=100):
+    l_docs = []
+    l_target = []
+    i = 0
+    for k, v in assuntos.items():
+        if cut <= -1:
+            i += 1
+            l_docs = l_docs + v['list_docs'][0:]
+            l_target = l_target + v['list_target'][0:]
+        elif v['valor'] >= cut:
+            i += 1
+            l_docs = l_docs + v['list_docs'][0:cut]
+            l_target = l_target + v['list_target'][0:cut]
+    print(i)
+    print(len(l_docs), len(l_target))
+    return l_docs, l_target
+
+
 def getting_data():
     files_names = get_files() 
     assuntos = {}
@@ -82,7 +146,7 @@ def getting_data():
     l_docs = []
     l_target = []
     i = 0
-    cut = 1500
+    cut = 500
     for k, v in sorted(assuntos.items(), key=lambda x: x[0][0], reverse=True):
         if v['valor'] > cut:
             i += 1
