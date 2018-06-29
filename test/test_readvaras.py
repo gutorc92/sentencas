@@ -6,9 +6,7 @@ import platform
 import re
 import requests as req
 from bs4 import BeautifulSoup
-from pages.scrapypage import ScrapyNrProcess
 from settings import Settings
-from networking import ProxedHTTPRequester
 import json
 from pymongo import MongoClient
 from model.models import Varas, Mongo
