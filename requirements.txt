@@ -19,5 +19,5 @@ selenium==3.8.1
 six==1.11.0
 stem==1.6.0
 uritemplate==3.0.0
-urllib3==1.22
+urllib3==1.26.5
 wincertstore==0.2
